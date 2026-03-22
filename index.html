@@ -674,6 +674,59 @@
       display: flex; justify-content: space-between; align-items: center;
     }
     .footer-copy p { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; padding: 7rem 2rem 4rem; text-align: center; }
+      .hero-perks  { align-items: center; }
+      .hero-actions { justify-content: center; }
+      .hero-visual { height: 380px; }
+      .product-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .cta-inner { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+      footer { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      /* NAV */
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+
+      /* HERO */
+      .hero-inner { padding: 5.5rem 1.5rem 3rem; gap: 2rem; }
+      .hero-visual { height: 280px; }
+      .hero-actions { flex-direction: column; gap: 0.7rem; }
+      .btn-primary, .btn-ghost { width: 100%; text-align: center; }
+
+      /* TRUST BAR */
+      .trust-bar { flex-wrap: wrap; gap: 0.9rem 1.5rem; padding: 1.2rem 1.5rem; justify-content: flex-start; }
+
+      /* HOW IT WORKS */
+      #how-it-works { padding: 5rem 1.5rem; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .steps-grid::before { display: none; }
+
+      /* PRODUCT */
+      #product { padding: 4rem 0; }
+      .product-inner { padding: 0 1.5rem; gap: 2rem; }
+      .product-visual { height: 300px; }
+      .nutrition-row { grid-template-columns: repeat(2,1fr); }
+
+      /* REVIEWS */
+      #reviews { padding: 5rem 1.5rem; }
+      .reviews-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .reviews-grid { grid-template-columns: 1fr; }
+
+      /* COMMUNITY */
+      #community { margin: 0 1rem; border-radius: 20px; }
+
+      /* PRICING */
+      #cta { padding: 3rem 1.5rem 5rem; }
+      .cta-inner { max-width: 100%; }
+
+      /* FOOTER */
+      footer { padding: 2.5rem 1.5rem 1.5rem; grid-template-columns: 1fr; }
+      .footer-copy { flex-direction: column; gap: 0.6rem; text-align: center; }
+    }
   </style>
 </head>
 <body>
