@@ -257,6 +257,7 @@
     }
 
     /* Hero product video */
+    .hero-visual { perspective: 900px; }
     .hero-video {
       position: absolute;
       inset: 0;
@@ -264,6 +265,15 @@
       height: 100%;
       object-fit: contain;
       z-index: 2;
+      animation: heroAnim 14s linear infinite;
+      transform-origin: center center;
+    }
+    @keyframes heroAnim {
+      0%   { transform: translateY(0px)   rotateY(0deg);   }
+      25%  { transform: translateY(-14px) rotateY(90deg);  }
+      50%  { transform: translateY(0px)   rotateY(180deg); }
+      75%  { transform: translateY(-14px) rotateY(270deg); }
+      100% { transform: translateY(0px)   rotateY(360deg); }
     }
 
     .scroll-hint {
@@ -1308,6 +1318,10 @@ gsap.to('.cta-card', {
   scrollTrigger: { trigger:'#cta', start:'top 80%' },
   opacity:1, y:0, duration:0.8, stagger:0.14, ease:'power3.out',
 });
+
+// Force-play hero video (some browsers block autoplay)
+const heroVid = document.querySelector('.hero-video');
+if (heroVid) heroVid.play().catch(() => {});
 </script>
 </body>
 </html>
