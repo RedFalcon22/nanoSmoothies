@@ -1408,6 +1408,61 @@ gsap.to('.community-bg', {
   y:-50, scale:1.08,
 });
 
+// ── PARALLAX ──
+// Hero text drifts up slowly
+gsap.to('.hero-text', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
+  y: -110, ease:'none',
+});
+// Hero 3D model drifts up faster (depth effect)
+gsap.to('.hero-visual', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
+  y: -200, ease:'none',
+});
+// Blobs at different speeds for layered depth
+gsap.to('.blob-1', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1.5 },
+  y: -180, x: 40, ease:'none',
+});
+gsap.to('.blob-2', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2 },
+  y: -70, x: -30, ease:'none',
+});
+// Hero particles canvas drifts slowest (furthest back)
+gsap.to('#hero-canvas', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2.5 },
+  y: -50, ease:'none',
+});
+// How it works — section header drifts in from below
+gsap.to('#how-it-works .section-label, #how-it-works .section-title', {
+  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'center center', scrub:1 },
+  y: -30, ease:'none',
+});
+// Product visual floats up as you scroll into section
+gsap.to('.product-visual', {
+  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:1.5 },
+  y: -70, ease:'none',
+});
+// Product text moves slightly slower than visual
+gsap.to('.product-info', {
+  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:2 },
+  y: -30, ease:'none',
+});
+// Reviews header drifts
+gsap.to('#reviews .reviews-header', {
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'center center', scrub:1 },
+  y: -40, ease:'none',
+});
+// Review cards subtle depth stagger
+gsap.to('.review-card:nth-child(2)', {
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1.5 },
+  y: -25, ease:'none',
+});
+gsap.to('.review-card:nth-child(3)', {
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:2 },
+  y: -50, ease:'none',
+});
+
 // Pricing
 gsap.to('.cta-card', {
   scrollTrigger: { trigger:'#cta', start:'top 80%' },
