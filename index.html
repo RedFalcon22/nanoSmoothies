@@ -256,38 +256,15 @@
       opacity: 0; transform: translateX(30px);
     }
 
-    /* Hero 3D canvas (base.obj) */
-    #hero-model-canvas {
+    /* Hero product video */
+    .hero-video {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      object-fit: contain;
       z-index: 2;
     }
-
-    /* Hero model loading overlay */
-    #hero-model-loading {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.8rem;
-      transition: opacity 0.5s;
-    }
-    .hml-ring {
-      width: 36px; height: 36px;
-      border: 2px solid rgba(109,181,32,0.2);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .hml-bar-wrap { width: 110px; height: 3px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
-    .hml-bar { height: 100%; background: var(--green); border-radius: 2px; width: 0%; transition: width 0.3s; }
-    #hero-model-loading p { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 
     .scroll-hint {
       position: absolute;
@@ -778,14 +755,9 @@
       </div>
     </div>
 
-    <!-- RIGHT: base.obj 3D model -->
+    <!-- RIGHT: product video -->
     <div class="hero-visual">
-      <canvas id="hero-model-canvas"></canvas>
-      <div id="hero-model-loading">
-        <div class="hml-ring"></div>
-        <div class="hml-bar-wrap"><div id="hero-model-progress" class="hml-bar"></div></div>
-        <p>Loading 3D model…</p>
-      </div>
+      <video class="hero-video" src="./Design sans titre.mp4" autoplay muted loop playsinline></video>
     </div>
 
   </div><!-- /hero-inner -->
@@ -1043,7 +1015,6 @@
 
 <script type="module">
 import * as THREE from 'three';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 /* ── MARQUEE ── */
@@ -1128,130 +1099,6 @@ items.forEach(t => {
   })();
 })();
 
-/* ── HERO MODEL — base.obj ── */
-(function heroModelScene() {
-  const canvas = document.getElementById('hero-model-canvas');
-  const wrap   = canvas.parentElement;
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  renderer.shadowMap.enabled = true;
-
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, wrap.clientWidth / wrap.clientHeight, 0.1, 200);
-  camera.position.set(0, 0.5, 7);
-  camera.lookAt(0, 0, 0);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-  keyLight.position.set(5, 8, 6);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
-
-  const greenFill = new THREE.PointLight(0x6db520, 3.5, 22);
-  greenFill.position.set(-4, 2, 3);
-  scene.add(greenFill);
-
-  const warmRim = new THREE.PointLight(0xfbbf24, 2, 18);
-  warmRim.position.set(3, -3, -3);
-  scene.add(warmRim);
-
-  const modelGroup = new THREE.Group();
-  scene.add(modelGroup);
-
-  // Fruit orbs visible while loading
-  const fruitDefs = [
-    { col: 0x7c3aed, size: 0.14, rad: 2.4, speed: 0.38, phase: 0,   tilt: 0.6  },
-    { col: 0xdc2626, size: 0.11, rad: 2.7, speed: 0.28, phase: 2.1, tilt:-0.4  },
-    { col: 0xd97706, size: 0.13, rad: 2.2, speed: 0.46, phase: 4.3, tilt: 1.0  },
-    { col: 0xea580c, size: 0.10, rad: 3.0, speed: 0.32, phase: 1.0, tilt:-0.7  },
-    { col: 0x16a34a, size: 0.11, rad: 2.6, speed: 0.50, phase: 3.2, tilt: 0.3  },
-  ];
-  const fruitMeshes = fruitDefs.map(d => {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(d.size, 12, 12),
-      new THREE.MeshPhongMaterial({ color: d.col, emissive: d.col, emissiveIntensity: 0.35 })
-    );
-    scene.add(mesh);
-    return { mesh, angle: d.phase, ...d };
-  });
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(2.8, 0.022, 12, 80),
-    new THREE.MeshBasicMaterial({ color: 0x6db520, transparent: true, opacity: 0.18 })
-  );
-  scene.add(ring);
-
-  new OBJLoader().load(
-    './base.obj',
-    (obj) => {
-      const box    = new THREE.Box3().setFromObject(obj);
-      const maxDim = Math.max(...box.getSize(new THREE.Vector3()).toArray());
-      obj.scale.setScalar(3.0 / maxDim);
-      box.setFromObject(obj);
-      obj.position.sub(box.getCenter(new THREE.Vector3()));
-
-      obj.traverse(child => {
-        if (!child.isMesh) return;
-        child.castShadow = child.receiveShadow = true;
-        child.material = new THREE.MeshPhongMaterial({
-          color: 0xd4f0a8, specular: 0xffffff, shininess: 300,
-          transparent: true, opacity: 0.85, side: THREE.DoubleSide,
-        });
-      });
-
-      modelGroup.add(obj);
-      const ov = document.getElementById('hero-model-loading');
-      if (ov) { ov.style.opacity = '0'; setTimeout(() => ov.remove(), 500); }
-    },
-    (xhr) => {
-      if (xhr.lengthComputable) {
-        const bar = document.getElementById('hero-model-progress');
-        if (bar) bar.style.width = Math.round(xhr.loaded / xhr.total * 100) + '%';
-      }
-    },
-    (err) => {
-      console.error('OBJ error:', err);
-      const ov = document.getElementById('hero-model-loading');
-      if (ov) ov.innerHTML = '<p style="color:#dc2626;font-size:0.75rem;text-align:center">Run via a local server<br>(npx serve .)</p>';
-    }
-  );
-
-  // Mouse parallax
-  let mx = 0, my = 0;
-  window.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-    my = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-  window.addEventListener('resize', () => {
-    camera.aspect = wrap.clientWidth / wrap.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  });
-
-  let t = 0;
-  (function animate() {
-    requestAnimationFrame(animate);
-    t += 0.008;
-
-    modelGroup.rotation.y = Math.sin(t * 0.3) * 0.4 + mx * 0.2;
-    modelGroup.rotation.x = my * -0.08;
-    modelGroup.position.y = Math.sin(t * 0.65) * 0.18;
-
-    fruitMeshes.forEach(f => {
-      f.angle += f.speed * 0.01;
-      f.mesh.position.x = Math.cos(f.angle) * f.rad;
-      f.mesh.position.z = Math.sin(f.angle) * f.rad;
-      f.mesh.position.y = Math.sin(f.angle * 0.7 + f.tilt) * 1.0 + modelGroup.position.y * 0.4;
-    });
-
-    ring.rotation.y = t * 0.09;
-    greenFill.intensity = 3.2 + Math.sin(t * 1.8) * 0.7;
-    renderer.render(scene, camera);
-  })();
-})();
 
 /* ── PRODUCT CANVAS — Juice_Bottle.fbx ── */
 (function productScene() {
