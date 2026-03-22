@@ -20,6 +20,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +41,7 @@
       --shadow-md:    0 8px 32px rgba(0,0,0,0.09);
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: auto; }
 
     body {
       background: var(--bg);
@@ -1408,59 +1409,103 @@ gsap.to('.community-bg', {
   y:-50, scale:1.08,
 });
 
+// ── LENIS SMOOTH SCROLL ──
+const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
 // ── PARALLAX ──
-// Hero text drifts up slowly
+// Hero: cinematic fade + scale as you scroll past
+gsap.to('.hero-inner', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1.2 },
+  opacity: 0, scale: 0.93, ease:'none',
+});
+// Hero text drifts up
 gsap.to('.hero-text', {
   scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
-  y: -110, ease:'none',
+  y: -80, ease:'none',
 });
-// Hero 3D model drifts up faster (depth effect)
+// Hero 3D model drifts faster — pops forward
 gsap.to('.hero-visual', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
-  y: -200, ease:'none',
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:0.8 },
+  y: -160, ease:'none',
 });
-// Blobs at different speeds for layered depth
+// Blobs drift + rotate — organic layered depth
 gsap.to('.blob-1', {
   scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1.5 },
-  y: -180, x: 40, ease:'none',
+  y: -200, x: 60, rotation: 65, ease:'none',
 });
 gsap.to('.blob-2', {
   scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2 },
-  y: -70, x: -30, ease:'none',
+  y: -90, x: -50, rotation: -80, ease:'none',
 });
-// Hero particles canvas drifts slowest (furthest back)
+// Particles canvas — furthest back, barely moves
 gsap.to('#hero-canvas', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2.5 },
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:3 },
+  y: -35, ease:'none',
+});
+// How it works — label slides from left, title drifts up
+gsap.from('#how-it-works .section-label', {
+  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'center center', scrub:1 },
+  x: -40, ease:'none',
+});
+gsap.to('#how-it-works .section-title', {
+  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'bottom top', scrub:1.5 },
   y: -50, ease:'none',
 });
-// How it works — section header drifts in from below
-gsap.to('#how-it-works .section-label, #how-it-works .section-title', {
-  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'center center', scrub:1 },
-  y: -30, ease:'none',
+// Step cards — 3 depths so they feel staggered in 3D space
+gsap.to('.step-card:nth-child(1)', {
+  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1 },
+  y: -50, ease:'none',
 });
-// Product visual floats up as you scroll into section
+gsap.to('.step-card:nth-child(2)', {
+  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1.8 },
+  y: -90, ease:'none',
+});
+gsap.to('.step-card:nth-child(3)', {
+  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1.3 },
+  y: -60, ease:'none',
+});
+// Product — visual rises faster than the text (parallax depth split)
 gsap.to('.product-visual', {
-  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:1.5 },
-  y: -70, ease:'none',
+  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:1.2 },
+  y: -90, ease:'none',
 });
-// Product text moves slightly slower than visual
 gsap.to('.product-info', {
   scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:2 },
   y: -30, ease:'none',
 });
-// Reviews header drifts
+// Reviews — header drifts, cards at 3 depths
 gsap.to('#reviews .reviews-header', {
   scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'center center', scrub:1 },
-  y: -40, ease:'none',
+  y: -50, ease:'none',
 });
-// Review cards subtle depth stagger
+gsap.to('.review-card:nth-child(1)', {
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1 },
+  y: -20, ease:'none',
+});
 gsap.to('.review-card:nth-child(2)', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1.5 },
-  y: -25, ease:'none',
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1.7 },
+  y: -55, ease:'none',
 });
 gsap.to('.review-card:nth-child(3)', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:2 },
-  y: -50, ease:'none',
+  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:2.3 },
+  y: -35, ease:'none',
+});
+// Community bg — deeper scale + drift
+gsap.to('.community-bg', {
+  scrollTrigger: { trigger:'#community', start:'top bottom', end:'bottom top', scrub:1 },
+  y: -90, scale: 1.2, ease:'none',
+});
+// CTA pricing cards — staggered depths
+gsap.to('.cta-card:nth-child(1)', {
+  scrollTrigger: { trigger:'#cta', start:'top bottom', end:'bottom top', scrub:1 },
+  y: -30, ease:'none',
+});
+gsap.to('.cta-card:nth-child(2)', {
+  scrollTrigger: { trigger:'#cta', start:'top bottom', end:'bottom top', scrub:1.6 },
+  y: -55, ease:'none',
 });
 
 // Pricing
