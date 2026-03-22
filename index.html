@@ -1124,7 +1124,9 @@ items.forEach(t => {
   const greenFill = new THREE.PointLight(0x6db520, 3.0, 22);
   greenFill.position.set(-4, 2, 4);
   scene.add(greenFill);
-  scene.add(Object.assign(new THREE.PointLight(0xfbbf24, 1.8, 18), { position: new THREE.Vector3(3, -2, -4) }));
+  const rimLight = new THREE.PointLight(0xfbbf24, 1.8, 18);
+  rimLight.position.set(3, -2, -4);
+  scene.add(rimLight);
 
   const loader = new GLTFLoader();
 
