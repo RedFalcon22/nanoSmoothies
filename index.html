@@ -1014,7 +1014,8 @@
 
 <script type="module">
 import * as THREE from 'three';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { FBXLoader  } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ── MARQUEE ── */
 const items = [
@@ -1099,7 +1100,7 @@ items.forEach(t => {
 })();
 
 
-/* ── HERO MODEL — smoothie cup ── */
+/* ── HERO MODEL — frappe + orbiting fruits (Kenney GLB) ── */
 (function heroModelScene() {
   const canvas = document.getElementById('hero-model-canvas');
   const wrap   = canvas.parentElement;
@@ -1112,107 +1113,62 @@ items.forEach(t => {
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
-  camera.position.set(0, 0.5, 9);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 1.0, 7);
+  camera.lookAt(0, 0.5, 0);
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
   keyLight.position.set(5, 8, 6);
   keyLight.castShadow = true;
   scene.add(keyLight);
   const greenFill = new THREE.PointLight(0x6db520, 3.0, 22);
   greenFill.position.set(-4, 2, 4);
   scene.add(greenFill);
-  const rimLight = new THREE.PointLight(0xfbbf24, 1.8, 18);
-  rimLight.position.set(3, -2, -4);
-  scene.add(rimLight);
+  scene.add(Object.assign(new THREE.PointLight(0xfbbf24, 1.8, 18), { position: new THREE.Vector3(3, -2, -4) }));
 
+  const loader = new GLTFLoader();
+
+  // ── FRAPPE (main cup) ──
   const cupGroup = new THREE.Group();
   scene.add(cupGroup);
 
-  // ── CUP BODY (translucent plastic) ──
-  const cupMat = new THREE.MeshPhongMaterial({
-    color: 0xd4f0a8, specular: 0xffffff, shininess: 220,
-    transparent: true, opacity: 0.42, side: THREE.DoubleSide,
+  loader.load('./frappe.glb', (gltf) => {
+    const model = gltf.scene;
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = 2.8 / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(scale);
+    box.setFromObject(model);
+    model.position.sub(box.getCenter(new THREE.Vector3()));
+    model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+    cupGroup.add(model);
   });
-  cupGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(1.05, 0.82, 2.9, 48, 1, true), cupMat));
 
-  const bottomMat = new THREE.MeshPhongMaterial({ color: 0xd4f0a8, transparent: true, opacity: 0.5 });
-  const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.82, 48), bottomMat);
-  bottom.rotation.x = -Math.PI / 2;
-  bottom.position.y = -1.45;
-  cupGroup.add(bottom);
+  // ── ORBITING FRUITS ──
+  const fruitFiles = [
+    { file: 'strawberry.glb',   rad: 2.8, speed: 0.42, phase: 0.0,  tilt:  0.5, scale: 0.9 },
+    { file: 'apple-half.glb',   rad: 3.2, speed: 0.30, phase: 1.8,  tilt: -0.4, scale: 1.1 },
+    { file: 'lemon-half.glb',   rad: 2.5, speed: 0.50, phase: 3.5,  tilt:  0.8, scale: 1.0 },
+    { file: 'orange.glb',       rad: 3.0, speed: 0.36, phase: 5.0,  tilt: -0.6, scale: 1.0 },
+    { file: 'watermelon.glb',   rad: 3.4, speed: 0.26, phase: 2.4,  tilt:  0.3, scale: 0.7 },
+    { file: 'cherries.glb',     rad: 2.3, speed: 0.55, phase: 4.2,  tilt: -0.3, scale: 1.0 },
+    { file: 'coconut-half.glb', rad: 3.1, speed: 0.32, phase: 6.0,  tilt:  0.6, scale: 0.9 },
+  ];
 
-  // ── SMOOTHIE LIQUID ──
-  const liquid = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.91, 0.70, 2.62, 48),
-    new THREE.MeshPhongMaterial({ color: 0x6db520, specular: 0x99dd44, shininess: 90, transparent: true, opacity: 0.9 })
-  );
-  liquid.position.y = -0.1;
-  cupGroup.add(liquid);
-
-  // Shiny liquid surface
-  const surface = new THREE.Mesh(
-    new THREE.CircleGeometry(0.91, 48),
-    new THREE.MeshPhongMaterial({ color: 0x88cc33, specular: 0xaaffaa, shininess: 240, transparent: true, opacity: 0.95 })
-  );
-  surface.rotation.x = -Math.PI / 2;
-  surface.position.y = 1.21;
-  cupGroup.add(surface);
-
-  // ── LID ──
-  const lidMat = new THREE.MeshPhongMaterial({ color: 0xf8f8f8, specular: 0xffffff, shininess: 160, transparent: true, opacity: 0.93 });
-  const lid = new THREE.Mesh(new THREE.CylinderGeometry(1.12, 1.12, 0.22, 48), lidMat);
-  lid.position.y = 1.55;
-  cupGroup.add(lid);
-
-  // Lid snap ring
-  const snapRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.12, 0.06, 8, 48),
-    new THREE.MeshPhongMaterial({ color: 0xdddddd, shininess: 130 })
-  );
-  snapRing.position.y = 1.44;
-  cupGroup.add(snapRing);
-
-  // Lid dome
-  const dome = new THREE.Mesh(
-    new THREE.SphereGeometry(0.4, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.44),
-    lidMat
-  );
-  dome.position.y = 1.66;
-  cupGroup.add(dome);
-
-  // ── STRAW ──
-  const straw = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.063, 0.063, 4.4, 12),
-    new THREE.MeshPhongMaterial({ color: 0x6db520, shininess: 90 })
-  );
-  straw.rotation.z = Math.PI * 0.09;
-  straw.position.set(0.32, 2.4, 0);
-  cupGroup.add(straw);
-
-  // ── FLOATING FRUIT PIECES ──
   const fruits = [];
-  function addFruit(geo, color, rad, speed, phase, yOff, tilt) {
-    const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-      color, specular: 0xffffff, shininess: 70,
-      emissive: color, emissiveIntensity: 0.09,
-    }));
-    scene.add(mesh);
-    fruits.push({ mesh, angle: phase, rad, speed, yOff, tilt });
-  }
+  fruitFiles.forEach(def => {
+    loader.load('./' + def.file, (gltf) => {
+      const model = gltf.scene;
+      const box   = new THREE.Box3().setFromObject(model);
+      const size  = box.getSize(new THREE.Vector3());
+      const s     = (0.55 * def.scale) / Math.max(size.x, size.y, size.z);
+      model.scale.setScalar(s);
+      model.traverse(c => { if (c.isMesh) c.castShadow = true; });
+      scene.add(model);
+      fruits.push({ model, angle: def.phase, ...def });
+    });
+  });
 
-  addFruit(new THREE.CylinderGeometry(0.38, 0.38, 0.13, 24), 0xff8800, 2.9, 0.36, 0.0,  0.3,  0.5);  // orange
-  addFruit(new THREE.ConeGeometry(0.22, 0.42, 12),             0xee2233, 2.4, 0.48, 1.8, -0.4, -0.6);  // strawberry
-  addFruit(new THREE.CylinderGeometry(0.31, 0.31, 0.11, 24),  0x44aa22, 3.1, 0.27, 3.5,  0.8,  0.3);  // kiwi
-  addFruit(new THREE.BoxGeometry(0.34, 0.26, 0.28),            0xffcc00, 2.6, 0.43, 5.0, -0.2,  0.8);  // mango
-  addFruit(new THREE.SphereGeometry(0.17, 14, 14),             0x4422cc, 2.2, 0.56, 2.5,  0.6, -0.3);  // blueberry
-  addFruit(new THREE.SphereGeometry(0.14, 10, 10),             0xcc1144, 3.2, 0.39, 4.2, -0.5,  0.7);  // raspberry
-  addFruit(new THREE.CylinderGeometry(0.28, 0.28, 0.09, 24),  0x88dd11, 2.0, 0.61, 1.2,  0.0, -0.5);  // lime
-  addFruit(new THREE.BoxGeometry(0.44, 0.06, 0.21),            0x33cc66, 3.4, 0.31, 6.0,  0.5,  0.2);  // mint leaf
-
-  // Resize + mouse parallax
   let mx = 0, my = 0;
   window.addEventListener('mousemove', e => {
     mx = (e.clientX / window.innerWidth  - 0.5) * 2;
@@ -1229,17 +1185,17 @@ items.forEach(t => {
     requestAnimationFrame(animate);
     t += 0.008;
 
-    cupGroup.rotation.y  = t * 0.38 + mx * 0.18;
-    cupGroup.rotation.x  = my * -0.07;
-    cupGroup.position.y  = Math.sin(t * 0.65) * 0.18;
+    cupGroup.rotation.y = t * 0.38 + mx * 0.18;
+    cupGroup.rotation.x = my * -0.07;
+    cupGroup.position.y = Math.sin(t * 0.65) * 0.18;
 
     fruits.forEach(f => {
       f.angle += f.speed * 0.01;
-      f.mesh.position.x = Math.cos(f.angle) * f.rad;
-      f.mesh.position.z = Math.sin(f.angle) * f.rad;
-      f.mesh.position.y = Math.sin(f.angle * 0.7 + f.tilt) * 1.1 + cupGroup.position.y * 0.3;
-      f.mesh.rotation.x += 0.012;
-      f.mesh.rotation.z += 0.009;
+      f.model.position.x = Math.cos(f.angle) * f.rad;
+      f.model.position.z = Math.sin(f.angle) * f.rad;
+      f.model.position.y = Math.sin(f.angle * 0.7 + f.tilt) * 1.1 + cupGroup.position.y * 0.3;
+      f.model.rotation.y += 0.012;
+      f.model.rotation.x += 0.007;
     });
 
     greenFill.intensity = 2.6 + Math.sin(t * 1.8) * 0.6;
