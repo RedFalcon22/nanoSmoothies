@@ -25,27 +25,28 @@
 
     :root {
       --green:       #6db520;
-      --green-d:     #4d8015;
-      --green-glow:  rgba(109,181,32,0.22);
-      --bg:          #060e02;
-      --bg2:         #0b1806;
-      --text:        #e8f5d8;
-      --text2:       #86a46e;
-      --muted:       #48623a;
-      --glass:       rgba(8,20,4,0.78);
-      --gb:          rgba(109,181,32,0.14);
+      --green-d:     #538f18;
+      --green-light: #edf7dc;
+      --bg:          #f6fbf0;
+      --bg2:         #ffffff;
+      --text:        #0e1a07;
+      --text2:       #374151;
+      --muted:       #7a8a72;
+      --glass:       rgba(255,255,255,0.88);
+      --gb:          rgba(109,181,32,0.2);
     }
 
     html { scroll-behavior: auto; }
     body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
 
     /* ── FIXED CANVASES ── */
     #bg-canvas, #model-canvas {
       position: fixed; inset: 0; pointer-events: none;
     }
-    #bg-canvas    { z-index: 0; opacity: 0.45; }
+    #bg-canvas    { z-index: 0; opacity: 0.18; }
     #model-canvas { z-index: 1; }
 
     /* ── NAV ── */
@@ -56,9 +57,10 @@
       transition: background 0.4s, box-shadow 0.4s;
     }
     nav.scrolled {
-      background: rgba(6,14,2,0.92);
+      background: rgba(246,251,240,0.94);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--gb);
+      box-shadow: 0 1px 0 var(--gb);
     }
     .nav-logo { font-family:'Inter',sans-serif; font-weight:900; font-size:1.05rem; letter-spacing:0.08em; color:var(--green); }
     .nav-logo span { color: var(--text); }
@@ -78,11 +80,11 @@
       position: relative; width:100%; height:100vh;
       display:flex; align-items:center; overflow:hidden; z-index: 2;
     }
-    #panel-hero    { background: transparent; }
-    #panel-how     { background: rgba(6,14,2,0.86);    backdrop-filter: blur(6px); }
-    #panel-product { background: rgba(8,18,4,0.88);    backdrop-filter: blur(6px); }
-    #panel-reviews { background: rgba(6,12,2,0.86);    backdrop-filter: blur(6px); }
-    #panel-cta     { background: rgba(8,18,4,0.90);    backdrop-filter: blur(6px); }
+    #panel-hero    { background: linear-gradient(135deg,#f0fadf 0%,#ffffff 55%,#f8fdf4 100%); }
+    #panel-how     { background: rgba(246,251,240,0.97); backdrop-filter: blur(6px); }
+    #panel-product { background: rgba(255,255,255,0.97); backdrop-filter: blur(6px); }
+    #panel-reviews { background: rgba(246,251,240,0.97); backdrop-filter: blur(6px); }
+    #panel-cta     { background: rgba(255,255,255,0.97); backdrop-filter: blur(6px); }
 
     .panel-inner {
       width:100%; max-width:1280px; margin:0 auto;
@@ -102,14 +104,14 @@
       font-size: clamp(2.6rem,5.5vw,4.8rem);
       line-height:0.95; letter-spacing:-0.04em; color:var(--text);
     }
-    .s-title .glow { color:var(--green); text-shadow: 0 0 55px rgba(109,181,32,0.55); }
+    .s-title .glow { color:var(--green); }
     .s-sub { margin-top:1.2rem; font-size:1rem; color:var(--text2); line-height:1.7; max-width:480px; }
 
     /* ── GLASS ── */
     .glass {
       background: var(--glass); border:1px solid var(--gb);
       border-radius:20px; backdrop-filter:blur(16px);
-      box-shadow: 0 0 40px rgba(109,181,32,0.05);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
 
     /* ── BUTTONS ── */
@@ -122,7 +124,7 @@
     .btn-primary:hover { background:var(--green-d); box-shadow:0 6px 32px rgba(109,181,32,0.58); transform:translateY(-2px); }
     .btn-ghost {
       padding:0.9rem 2.2rem; background:transparent; color:var(--text);
-      border:1.5px solid rgba(232,245,216,0.18); border-radius:100px;
+      border:1.5px solid rgba(0,0,0,0.15); border-radius:100px;
       font-size:0.9rem; font-weight:500; font-family:'Space Grotesk',sans-serif; cursor:pointer;
       transition: border-color 0.25s, color 0.25s;
     }
@@ -141,7 +143,7 @@
       font-size: clamp(3.2rem, 6.5vw, 6rem);
       line-height:0.93; letter-spacing:-0.04em; color:var(--text);
     }
-    .hero-title .glow { color:var(--green); text-shadow:0 0 70px rgba(109,181,32,0.65); }
+    .hero-title .glow { color:var(--green); }
     .hero-perks { display:flex; flex-direction:column; gap:0.5rem; margin-top:1.6rem; }
     .perk { display:flex; align-items:center; gap:0.6rem; font-size:0.875rem; color:var(--text2); }
     .perk-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
@@ -165,7 +167,7 @@
     /* ── PANEL 3: PRODUCT ── */
     .product-text-col {}
     .product-title { font-family:'Inter',sans-serif; font-weight:900; font-size:clamp(2rem,3.5vw,3rem); letter-spacing:-0.03em; color:var(--text); margin-top:0.8rem; line-height:1.05; }
-    .product-title .glow { color:var(--green); text-shadow:0 0 40px rgba(109,181,32,0.5); }
+    .product-title .glow { color:var(--green); }
     .product-desc { margin-top:1rem; font-size:0.95rem; color:var(--text2); line-height:1.7; }
     .ingredients { margin-top:1.8rem; display:flex; flex-direction:column; gap:0.65rem; }
     .ing-row { display:flex; align-items:center; gap:0.75rem; }
@@ -226,12 +228,12 @@
       position:relative; z-index:2;
       overflow:hidden; padding:1.2rem 0;
       border-top:1px solid var(--gb); border-bottom:1px solid var(--gb);
-      background:rgba(6,14,2,0.95);
+      background: var(--bg2);
     }
     .marquee-track { display:flex; width:max-content; animation:marquee 24s linear infinite; }
     .marquee-item {
       font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:600;
-      letter-spacing:0.14em; text-transform:uppercase; color:rgba(232,245,216,0.2);
+      letter-spacing:0.14em; text-transform:uppercase; color:rgba(0,0,0,0.18);
       display:flex; align-items:center; gap:1.4rem; padding:0 1.4rem; white-space:nowrap;
     }
     .marquee-dot { color:var(--green); font-size:0.35rem; }
@@ -663,7 +665,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 gsap.registerPlugin(ScrollTrigger);
 
 // Lenis smooth scroll
-const lenis = new Lenis({ lerp:0.08, smoothWheel:true });
+const lenis = new Lenis({ lerp:0.12, smoothWheel:true });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(time => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
@@ -699,61 +701,61 @@ window.setScenePanel = window.setScenePanel || function(){};
 const heroTl = gsap.timeline({
   scrollTrigger: {
     trigger: '#panel-hero', start:'top top',
-    end: '+=90%', scrub:1,
+    end: '+=60%', scrub:0.4,
     pin: !isMobile, anticipatePin:1,
     onEnter:      () => window.setScenePanel('hero'),
     onEnterBack:  () => window.setScenePanel('hero'),
   }
 });
 heroTl
-  .from('#hero-text .hero-badge',   { opacity:0, y:20,  duration:0.2 })
-  .from('#hero-text .hero-title',   { opacity:0, y:50,  duration:0.3 }, '-=0.1')
-  .from('#hero-text .s-sub',        { opacity:0, y:20,  duration:0.2 }, '-=0.15')
-  .from('#hero-text .hero-perks',   { opacity:0, y:20,  duration:0.2 }, '-=0.1')
-  .from('#hero-text .hero-actions', { opacity:0, y:20,  duration:0.2 }, '-=0.1')
-  .from('#hero-text .hero-stats',   { opacity:0, y:20,  duration:0.2 }, '-=0.1')
-  .from('.scroll-hint',             { opacity:0,        duration:0.15 }, '-=0.05')
-  .to('#hero-text',                 { opacity:0, y:-80, duration:0.3  }, '+=0.25');
+  .from('#hero-text .hero-badge',   { opacity:0, y:16,  duration:0.15 })
+  .from('#hero-text .hero-title',   { opacity:0, y:30,  duration:0.2  }, '-=0.08')
+  .from('#hero-text .s-sub',        { opacity:0, y:16,  duration:0.15 }, '-=0.1')
+  .from('#hero-text .hero-perks',   { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .from('#hero-text .hero-actions', { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .from('#hero-text .hero-stats',   { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .from('.scroll-hint',             { opacity:0,        duration:0.1  }, '-=0.05')
+  .to('#hero-text',                 { opacity:0, y:-60, duration:0.2  }, '+=0.15');
 
 // ── PANEL 2: HOW IT WORKS ──
 const howTl = gsap.timeline({
   scrollTrigger: {
     trigger: '#panel-how', start:'top top',
-    end: '+=120%', scrub:1,
+    end: '+=80%', scrub:0.4,
     pin: !isMobile, anticipatePin:1,
     onEnter:      () => window.setScenePanel('how'),
     onEnterBack:  () => window.setScenePanel('how'),
   }
 });
 howTl
-  .from('#how-header .s-label', { opacity:0, y:30, duration:0.25 })
-  .from('#how-header .s-title', { opacity:0, y:40, duration:0.3  }, '-=0.1')
-  .from('#step-1', { opacity:0, y:60, duration:0.3 }, '-=0.1')
-  .from('#step-2', { opacity:0, y:60, duration:0.3 })
-  .from('#step-3', { opacity:0, y:60, duration:0.3 })
-  .to('#panel-how .panel-inner', { opacity:0, y:-60, duration:0.3 }, '+=0.3');
+  .from('#how-header .s-label', { opacity:0, y:20, duration:0.15 })
+  .from('#how-header .s-title', { opacity:0, y:28, duration:0.2  }, '-=0.08')
+  .from('#step-1', { opacity:0, y:40, duration:0.2 }, '-=0.08')
+  .from('#step-2', { opacity:0, y:40, duration:0.2 })
+  .from('#step-3', { opacity:0, y:40, duration:0.2 })
+  .to('#panel-how .panel-inner', { opacity:0, y:-40, duration:0.2 }, '+=0.2');
 
 // ── PANEL 3: PRODUCT ──
 const productTl = gsap.timeline({
   scrollTrigger: {
     trigger: '#panel-product', start:'top top',
-    end: '+=110%', scrub:1,
+    end: '+=80%', scrub:0.4,
     pin: !isMobile, anticipatePin:1,
     onEnter:      () => window.setScenePanel('product'),
     onEnterBack:  () => window.setScenePanel('product'),
   }
 });
 productTl
-  .from('#product-text .s-label',       { opacity:0, x:30,  duration:0.25 })
-  .from('#product-text .product-title', { opacity:0, x:40,  duration:0.3  }, '-=0.1')
-  .from('#product-text .product-desc',  { opacity:0, y:20,  duration:0.2  }, '-=0.1')
-  .from('.ing-row',                     { opacity:0, x:30,  duration:0.2, stagger:0.06 }, '-=0.1')
-  .from('.nutrition-row',               { opacity:0, y:20,  duration:0.2  })
-  .from('.price-block',                 { opacity:0, y:20,  duration:0.2  }, '-=0.1')
-  .from('#product-text .hero-actions',  { opacity:0, y:20,  duration:0.2  }, '-=0.1')
-  .to('#product-text',                  { opacity:0, x:60,  duration:0.3  }, '+=0.3');
+  .from('#product-text .s-label',       { opacity:0, x:20,  duration:0.15 })
+  .from('#product-text .product-title', { opacity:0, x:28,  duration:0.2  }, '-=0.08')
+  .from('#product-text .product-desc',  { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .from('.ing-row',                     { opacity:0, x:20,  duration:0.15, stagger:0.04 }, '-=0.08')
+  .from('.nutrition-row',               { opacity:0, y:14,  duration:0.15 })
+  .from('.price-block',                 { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .from('#product-text .hero-actions',  { opacity:0, y:14,  duration:0.15 }, '-=0.08')
+  .to('#product-text',                  { opacity:0, x:40,  duration:0.2  }, '+=0.2');
 
-// Ingredient bar animation when product panel enters
+// Ingredient bars
 ScrollTrigger.create({
   trigger: '#panel-product', start:'top 60%',
   onEnter: () => document.querySelectorAll('.ing-bar').forEach(b => b.classList.add('animated')),
@@ -763,18 +765,18 @@ ScrollTrigger.create({
 const reviewsTl = gsap.timeline({
   scrollTrigger: {
     trigger: '#panel-reviews', start:'top top',
-    end: '+=110%', scrub:1,
+    end: '+=80%', scrub:0.4,
     pin: !isMobile, anticipatePin:1,
     onEnter:      () => window.setScenePanel('reviews'),
     onEnterBack:  () => window.setScenePanel('reviews'),
   }
 });
 reviewsTl
-  .from('#reviews-content .s-label',      { opacity:0, y:30, duration:0.25 })
-  .from('#reviews-content .s-title',      { opacity:0, y:40, duration:0.3  }, '-=0.1')
-  .from('#reviews-content .reviews-agg',  { opacity:0, x:20, duration:0.2  }, '-=0.1')
-  .from('.review-card',                   { opacity:0, y:50, duration:0.25, stagger:0.07 }, '-=0.1')
-  .to('#reviews-content',                 { opacity:0, y:-50, duration:0.3 }, '+=0.3');
+  .from('#reviews-content .s-label',     { opacity:0, y:20, duration:0.15 })
+  .from('#reviews-content .s-title',     { opacity:0, y:28, duration:0.2  }, '-=0.08')
+  .from('#reviews-content .reviews-agg', { opacity:0, x:16, duration:0.15 }, '-=0.08')
+  .from('.review-card',                  { opacity:0, y:35, duration:0.18, stagger:0.05 }, '-=0.08')
+  .to('#reviews-content',                { opacity:0, y:-40, duration:0.2 }, '+=0.2');
 
 // ── PANEL 5: CTA ──
 ScrollTrigger.create({
