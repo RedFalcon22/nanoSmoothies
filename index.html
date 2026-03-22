@@ -286,17 +286,63 @@
       .hero-stats { flex-wrap:wrap; gap:1.5rem; }
       .cta-grid { grid-template-columns:1fr; max-width:440px; }
     }
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px; z-index: 201;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
     @media (max-width:768px) {
-      nav { padding:1rem 1.5rem; }
-      .nav-links { display:none; }
-      .panel-inner { padding:0 1.5rem; }
-      .steps-row { grid-template-columns:1fr; }
-      .reviews-grid { grid-template-columns:1fr; overflow-y:auto; max-height:60vh; }
-      .nutrition-row { grid-template-columns:repeat(2,1fr); }
-      .hero-actions { flex-direction:column; }
-      .btn-primary, .btn-ghost { width:100%; text-align:center; }
-      footer { grid-template-columns:1fr; padding:2rem 1.5rem 1.5rem; }
-      .footer-copy { flex-direction:column; gap:0.5rem; text-align:center; }
+      /* Hide 3D canvases — too heavy on mobile */
+      #bg-canvas, #model-canvas { display: none; }
+
+      /* Nav */
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex; flex-direction: column; gap: 1.2rem;
+        position: fixed; top: 58px; left: 0; right: 0;
+        background: rgba(246,251,240,0.98);
+        backdrop-filter: blur(16px);
+        padding: 1.5rem 1.5rem 2rem;
+        border-bottom: 1px solid var(--gb);
+        z-index: 199;
+      }
+      .nav-links.open a { font-size: 1rem; }
+      .hamburger { display: flex; }
+
+      /* Panels — allow content height, solid backgrounds */
+      .panel { height: auto; min-height: 100svh; padding: 5.5rem 0 3.5rem; }
+      #panel-hero    { background: linear-gradient(135deg,#f0fadf 0%,#ffffff 55%,#f8fdf4 100%); }
+      #panel-how     { background: #f6fbf0; }
+      #panel-product { background: #ffffff; }
+      #panel-reviews { background: #f6fbf0; }
+      #panel-cta     { background: #ffffff; }
+
+      .panel-inner { padding: 0 1.5rem; }
+
+      /* Grids */
+      .steps-row { grid-template-columns: 1fr; }
+      .reviews-grid { grid-template-columns: 1fr; overflow-y: visible; max-height: none; }
+      .nutrition-row { grid-template-columns: repeat(2,1fr); }
+      .cta-grid { margin-top: 1.5rem; }
+
+      /* Buttons */
+      .hero-actions { flex-direction: column; gap: 0.7rem; }
+      .btn-primary, .btn-ghost { width: 100%; text-align: center; }
+
+      /* Footer */
+      footer { grid-template-columns: 1fr; padding: 2rem 1.5rem 1.5rem; }
+      .footer-copy { flex-direction: column; gap: 0.5rem; text-align: center; }
     }
   </style>
 </head>
@@ -309,12 +355,15 @@
 <!-- NAV -->
 <nav id="navbar">
   <div class="nav-logo">nano<span>smoothies®</span></div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#panel-how">How it Works</a></li>
     <li><a href="#panel-product">Shop</a></li>
     <li><a href="#panel-reviews">Reviews</a></li>
   </ul>
   <button class="nav-cta">Buy Now — £2/sachet</button>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ════════════════════════════════════════
@@ -798,6 +847,20 @@ gsap.from('#cta-content > div:first-child > *', {
 gsap.from('.cta-card', {
   scrollTrigger: { trigger:'#panel-cta', start:'top 75%' },
   opacity:0, y:40, duration:0.8, stagger:0.15, ease:'power3.out',
+});
+
+// Hamburger menu
+const hamburger = document.getElementById('hamburger');
+const navLinks  = document.getElementById('nav-links');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    navLinks.classList.remove('open');
+  });
 });
 </script>
 </body>
