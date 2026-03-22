@@ -1,0 +1,38 @@
+
+Simandeep Johal
+4:49 PM
+Hello there! Thank you for this proposal
+
+Khalil Khemiri
+5:08 PM
+Appreciate it, Simandeep!
+
+To make sure I can hit the ground running — could you share a bit more about the type of sites you need? (1-pagers, multi-section, specific industries?)
+
+Also I would be happy to jump on a quick call this week if that's easier.
+
+Simandeep Johal
+5:57 PM
+Great, what do you think of the 3D sites, and parallax animations?
+
+Khalil Khemiri
+7:19 PM
+Big fan of both — when done right they completely elevate how a brand feels online.
+Last year I collaborated with a friend on a project using GSAP for parallax and scroll animations — the results were really impressive even on a simple 1-pager. 3D elements with Three.js on top of that can make a site feel genuinely premium.
+For something like NanoSmoothies, that kind of treatment could look seriously sharp — smooth scroll, floating product visuals, clean transitions. Way above what most brands in that space have.
+Is that the kind of direction you’re thinking for your project?
+
+Simandeep Johal
+7:32 PM
+nice, yep and some tangents off of that too, can I see what you made?
+
+Khalil Khemiri
+7:36 PM
+The projects were done locally and not deployed, but honestly this gives me a good excuse , but let me put together a quick concept specifically for NanoSmoothies so you can see exactly what I'd bring to your brand. Give me 24 hours and I'll send you a live link like the other one I did.
+
+Simandeep Johal
+8:02 PM
+ok
+
+
+
