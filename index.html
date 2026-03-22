@@ -10,12 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <script type="importmap">
-  {
-    "imports": {
+  { "imports": {
       "three":         "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
+  } }
   </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -26,723 +24,302 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green:        #6db520;
-      --green-d:      #538f18;
-      --green-light:  #edf7dc;
-      --green-mid:    #c8e89a;
-      --bg:           #f6fbf0;
-      --bg2:          #ffffff;
-      --text:         #0e1a07;
-      --text2:        #374151;
-      --muted:        #7a8a72;
-      --card:         #ffffff;
-      --border:       rgba(0,0,0,0.07);
-      --shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
-      --shadow-md:    0 8px 32px rgba(0,0,0,0.09);
+      --green:       #6db520;
+      --green-d:     #4d8015;
+      --green-glow:  rgba(109,181,32,0.22);
+      --bg:          #060e02;
+      --bg2:         #0b1806;
+      --text:        #e8f5d8;
+      --text2:       #86a46e;
+      --muted:       #48623a;
+      --glass:       rgba(8,20,4,0.78);
+      --gb:          rgba(109,181,32,0.14);
     }
 
     html { scroll-behavior: auto; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Space Grotesk', sans-serif;
-      overflow-x: hidden;
-    }
-
+    body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+    /* ── FIXED CANVASES ── */
+    #bg-canvas, #model-canvas {
+      position: fixed; inset: 0; pointer-events: none;
+    }
+    #bg-canvas    { z-index: 0; opacity: 0.45; }
+    #model-canvas { z-index: 1; }
 
     /* ── NAV ── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.1rem 3rem;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
       transition: background 0.4s, box-shadow 0.4s;
     }
     nav.scrolled {
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 1px 0 var(--border);
+      background: rgba(6,14,2,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--gb);
     }
-
-    .nav-logo img { height: 36px; display: block; }
-    .nav-logo-fallback {
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: 1.1rem;
-      letter-spacing: 0.08em;
-      color: var(--green);
-    }
-    .nav-logo-fallback span { color: var(--text); }
-
-    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
-    .nav-links a {
-      color: var(--text2);
-      text-decoration: none;
-      font-size: 0.83rem;
-      letter-spacing: 0.04em;
-      transition: color 0.25s;
-    }
+    .nav-logo { font-family:'Inter',sans-serif; font-weight:900; font-size:1.05rem; letter-spacing:0.08em; color:var(--green); }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display:flex; gap:2.2rem; list-style:none; }
+    .nav-links a { color:var(--text2); text-decoration:none; font-size:0.83rem; letter-spacing:0.04em; transition:color 0.25s; }
     .nav-links a:hover { color: var(--green); }
-
     .nav-cta {
-      padding: 0.6rem 1.4rem;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 100px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      font-family: 'Space Grotesk', sans-serif;
-      letter-spacing: 0.03em;
-      cursor: pointer;
+      padding: 0.6rem 1.4rem; background: var(--green); color:#fff; border:none; border-radius:100px;
+      font-size:0.82rem; font-weight:700; font-family:'Space Grotesk',sans-serif; cursor:pointer;
       transition: background 0.25s, box-shadow 0.25s;
+      box-shadow: 0 0 22px rgba(109,181,32,0.35);
     }
-    .nav-cta:hover { background: var(--green-d); box-shadow: 0 4px 16px rgba(109,181,32,0.35); }
+    .nav-cta:hover { background: var(--green-d); box-shadow: 0 4px 28px rgba(109,181,32,0.55); }
 
-    /* ── HERO ── */
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      background: linear-gradient(135deg, #f0fadf 0%, #ffffff 55%, #f8fdf4 100%);
+    /* ── PANELS ── */
+    .panel {
+      position: relative; width:100%; height:100vh;
+      display:flex; align-items:center; overflow:hidden; z-index: 2;
     }
+    #panel-hero    { background: transparent; }
+    #panel-how     { background: rgba(6,14,2,0.86);    backdrop-filter: blur(6px); }
+    #panel-product { background: rgba(8,18,4,0.88);    backdrop-filter: blur(6px); }
+    #panel-reviews { background: rgba(6,12,2,0.86);    backdrop-filter: blur(6px); }
+    #panel-cta     { background: rgba(8,18,4,0.90);    backdrop-filter: blur(6px); }
 
-    /* Subtle canvas bg — particles */
-    #hero-canvas {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    .panel-inner {
+      width:100%; max-width:1280px; margin:0 auto;
+      padding: 0 3rem; display:grid; gap:3rem; align-items:center;
     }
+    .pi-split   { grid-template-columns: 1fr 1fr; }
+    .pi-center  { grid-template-columns: 1fr; max-width:960px; text-align:center; }
+    .pi-rsplit  { grid-template-columns: 1fr 1fr; } /* model left, text right */
 
-    /* Decorative blobs */
-    .hero-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
+    /* ── SHARED TYPE ── */
+    .s-label {
+      display:inline-block; font-size:0.68rem; font-weight:700;
+      letter-spacing:0.2em; text-transform:uppercase; color:var(--green); margin-bottom:0.9rem;
     }
-    .blob-1 { width: 500px; height: 500px; background: rgba(109,181,32,0.12); top: -100px; right: -100px; }
-    .blob-2 { width: 350px; height: 350px; background: rgba(109,181,32,0.08); bottom: -80px; left: -80px; }
+    .s-title {
+      font-family:'Inter',sans-serif; font-weight:900;
+      font-size: clamp(2.6rem,5.5vw,4.8rem);
+      line-height:0.95; letter-spacing:-0.04em; color:var(--text);
+    }
+    .s-title .glow { color:var(--green); text-shadow: 0 0 55px rgba(109,181,32,0.55); }
+    .s-sub { margin-top:1.2rem; font-size:1rem; color:var(--text2); line-height:1.7; max-width:480px; }
 
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      gap: 3rem;
-      max-width: 1280px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 8rem 3rem 5rem;
+    /* ── GLASS ── */
+    .glass {
+      background: var(--glass); border:1px solid var(--gb);
+      border-radius:20px; backdrop-filter:blur(16px);
+      box-shadow: 0 0 40px rgba(109,181,32,0.05);
     }
 
-    /* LEFT — text */
-    .hero-text {}
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.9rem;
-      background: var(--green-light);
-      border: 1px solid rgba(109,181,32,0.3);
-      border-radius: 100px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--green-d);
-      margin-bottom: 1.6rem;
-      opacity: 0; transform: translateY(16px);
-    }
-
-    .hero-title {
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: clamp(2.8rem, 5.5vw, 5rem);
-      line-height: 1.0;
-      letter-spacing: -0.035em;
-      color: var(--text);
-      opacity: 0; transform: translateY(24px);
-    }
-    .hero-title .green { color: var(--green); }
-
-    .hero-sub {
-      margin-top: 1.3rem;
-      font-size: 1.05rem;
-      color: var(--text2);
-      line-height: 1.65;
-      opacity: 0; transform: translateY(16px);
-    }
-
-    .hero-perks {
-      display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
-      margin-top: 1.8rem;
-      opacity: 0; transform: translateY(16px);
-    }
-    .perk {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.875rem;
-      color: var(--text2);
-    }
-    .perk-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      flex-shrink: 0;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 0.9rem;
-      margin-top: 2.2rem;
-      opacity: 0; transform: translateY(16px);
-    }
-
+    /* ── BUTTONS ── */
     .btn-primary {
-      padding: 0.85rem 2rem;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 100px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      font-family: 'Space Grotesk', sans-serif;
-      cursor: pointer;
+      padding:0.9rem 2.2rem; background:var(--green); color:#fff; border:none; border-radius:100px;
+      font-size:0.9rem; font-weight:700; font-family:'Space Grotesk',sans-serif; cursor:pointer;
       transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+      box-shadow: 0 0 24px rgba(109,181,32,0.38);
     }
-    .btn-primary:hover {
-      background: var(--green-d);
-      box-shadow: 0 6px 20px rgba(109,181,32,0.38);
-      transform: translateY(-2px);
-    }
-
+    .btn-primary:hover { background:var(--green-d); box-shadow:0 6px 32px rgba(109,181,32,0.58); transform:translateY(-2px); }
     .btn-ghost {
-      padding: 0.85rem 2rem;
-      background: transparent;
-      color: var(--text);
-      border: 1.5px solid rgba(0,0,0,0.15);
-      border-radius: 100px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      font-family: 'Space Grotesk', sans-serif;
-      cursor: pointer;
+      padding:0.9rem 2.2rem; background:transparent; color:var(--text);
+      border:1.5px solid rgba(232,245,216,0.18); border-radius:100px;
+      font-size:0.9rem; font-weight:500; font-family:'Space Grotesk',sans-serif; cursor:pointer;
       transition: border-color 0.25s, color 0.25s;
     }
-    .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+    .btn-ghost:hover { border-color:var(--green); color:var(--green); }
 
-    /* RIGHT — product visual */
-    .hero-visual {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 560px;
-      opacity: 0; transform: translateX(30px);
+    /* ── PANEL 1: HERO ── */
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.35rem 0.9rem; background:rgba(109,181,32,0.1);
+      border:1px solid rgba(109,181,32,0.28); border-radius:100px;
+      font-size:0.72rem; font-weight:600; letter-spacing:0.12em;
+      text-transform:uppercase; color:var(--green); margin-bottom:1.6rem;
     }
-
-    /* Hero 3D canvas */
-    #hero-model-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
+    .hero-title {
+      font-family:'Inter',sans-serif; font-weight:900;
+      font-size: clamp(3.2rem, 6.5vw, 6rem);
+      line-height:0.93; letter-spacing:-0.04em; color:var(--text);
     }
+    .hero-title .glow { color:var(--green); text-shadow:0 0 70px rgba(109,181,32,0.65); }
+    .hero-perks { display:flex; flex-direction:column; gap:0.5rem; margin-top:1.6rem; }
+    .perk { display:flex; align-items:center; gap:0.6rem; font-size:0.875rem; color:var(--text2); }
+    .perk-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
+    .hero-actions { display:flex; gap:1rem; margin-top:2rem; flex-wrap:wrap; }
+    .hero-stats {
+      display:flex; gap:2.2rem; margin-top:2rem; padding-top:2rem;
+      border-top:1px solid rgba(109,181,32,0.12);
+    }
+    .stat-val { font-family:'Inter',sans-serif; font-size:1.7rem; font-weight:900; color:var(--green); }
+    .stat-key { font-size:0.7rem; color:var(--muted); margin-top:0.1rem; }
+    .hero-spacer {} /* right col — 3D model lives in fixed canvas */
 
+    /* ── PANEL 2: HOW IT WORKS ── */
+    .steps-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
+    .step-card { padding:2.2rem 1.8rem; border-radius:20px; }
+    .step-num { font-size:0.6rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--green); margin-bottom:1.2rem; }
+    .step-icon { font-size:2.2rem; margin-bottom:1rem; }
+    .step-card h3 { font-family:'Inter',sans-serif; font-weight:700; font-size:1rem; color:var(--text); margin-bottom:0.5rem; }
+    .step-card p  { font-size:0.85rem; color:var(--text2); line-height:1.65; }
+
+    /* ── PANEL 3: PRODUCT ── */
+    .product-text-col {}
+    .product-title { font-family:'Inter',sans-serif; font-weight:900; font-size:clamp(2rem,3.5vw,3rem); letter-spacing:-0.03em; color:var(--text); margin-top:0.8rem; line-height:1.05; }
+    .product-title .glow { color:var(--green); text-shadow:0 0 40px rgba(109,181,32,0.5); }
+    .product-desc { margin-top:1rem; font-size:0.95rem; color:var(--text2); line-height:1.7; }
+    .ingredients { margin-top:1.8rem; display:flex; flex-direction:column; gap:0.65rem; }
+    .ing-row { display:flex; align-items:center; gap:0.75rem; }
+    .ing-label { font-size:0.8rem; color:var(--text2); width:120px; flex-shrink:0; }
+    .ing-bar-wrap { flex:1; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+    .ing-bar { height:100%; border-radius:3px; transform-origin:left; transform:scaleX(0); transition:transform 1.2s ease; }
+    .ing-bar.animated { transform:scaleX(1); }
+    .ing-g { font-size:0.72rem; color:var(--muted); width:30px; text-align:right; flex-shrink:0; }
+    .nutrition-row {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:0.75rem; margin-top:1.8rem; padding:1.2rem; border-radius:14px;
+    }
+    .nut-item { text-align:center; }
+    .nut-val { font-family:'Inter',sans-serif; font-size:1.3rem; font-weight:800; color:var(--green); }
+    .nut-key { font-size:0.68rem; color:var(--muted); margin-top:0.2rem; }
+    .price-block { margin-top:1.8rem; display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap; }
+    .price-main { font-family:'Inter',sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); }
+    .price-badge {
+      padding:0.3rem 0.85rem; background:rgba(109,181,32,0.12);
+      border:1px solid rgba(109,181,32,0.32); border-radius:100px;
+      font-size:0.72rem; font-weight:700; color:var(--green);
+    }
+    .product-spacer {} /* left col — 3D model */
+
+    /* ── PANEL 4: REVIEWS ── */
+    .reviews-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem; }
+    .reviews-agg { font-family:'Inter',sans-serif; font-size:3.5rem; font-weight:900; color:var(--green); line-height:1; }
+    .stars { display:flex; gap:3px; }
+    .star  { color:#f59e0b; font-size:0.88rem; }
+    .reviews-count { font-size:0.78rem; color:var(--muted); margin-top:0.2rem; }
+    .reviews-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+    .review-card { padding:1.75rem; border-radius:18px; }
+    .review-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+    .reviewer-name { font-weight:700; font-size:0.9rem; color:var(--text); }
+    .reviewer-date { font-size:0.7rem; color:var(--muted); }
+    .review-text   { font-size:0.85rem; color:var(--text2); line-height:1.7; margin-top:0.7rem; }
+
+    /* ── PANEL 5: CTA ── */
+    .cta-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; max-width:720px; margin:2.5rem auto 0; }
+    .cta-card { padding:2.5rem; border-radius:24px; position:relative; text-align:left; }
+    .cta-card.featured { border-color:var(--green) !important; box-shadow:0 0 50px rgba(109,181,32,0.14); }
+    .cta-card.featured::before {
+      content:'BEST VALUE'; position:absolute; top:1rem; right:1rem;
+      padding:0.25rem 0.7rem; background:var(--green); color:#fff;
+      font-size:0.6rem; font-weight:700; letter-spacing:0.1em; border-radius:100px;
+    }
+    .cta-card h3    { font-family:'Inter',sans-serif; font-weight:800; font-size:1.1rem; color:var(--text); margin-bottom:0.4rem; }
+    .card-desc      { font-size:0.82rem; color:var(--muted); margin-bottom:1.3rem; }
+    .cta-price      { font-family:'Inter',sans-serif; font-size:2.8rem; font-weight:900; color:var(--text); line-height:1; }
+    .cta-price .curr{ font-size:1.3rem; vertical-align:top; margin-top:0.3rem; display:inline-block; }
+    .cta-price-per  { font-size:0.75rem; color:var(--muted); margin-top:0.2rem; margin-bottom:1.5rem; }
+    .cta-features   { list-style:none; margin-bottom:1.8rem; display:flex; flex-direction:column; gap:0.55rem; }
+    .cta-features li{ display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text2); }
+    .cta-features li::before { content:'✓'; color:var(--green); font-weight:700; }
+
+    /* ── MARQUEE STRIP ── */
+    .marquee-strip {
+      position:relative; z-index:2;
+      overflow:hidden; padding:1.2rem 0;
+      border-top:1px solid var(--gb); border-bottom:1px solid var(--gb);
+      background:rgba(6,14,2,0.95);
+    }
+    .marquee-track { display:flex; width:max-content; animation:marquee 24s linear infinite; }
+    .marquee-item {
+      font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:600;
+      letter-spacing:0.14em; text-transform:uppercase; color:rgba(232,245,216,0.2);
+      display:flex; align-items:center; gap:1.4rem; padding:0 1.4rem; white-space:nowrap;
+    }
+    .marquee-dot { color:var(--green); font-size:0.35rem; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ── SCROLL HINT ── */
     .scroll-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.45rem;
-      color: var(--muted);
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      opacity: 0;
+      position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+      z-index:10; display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+      color:var(--muted); font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase;
     }
     .scroll-hint .bar {
-      width: 1px; height: 32px;
-      background: linear-gradient(to bottom, var(--green), transparent);
-      animation: scrollBar 1.8s ease-in-out infinite;
+      width:1px; height:30px;
+      background:linear-gradient(to bottom, var(--green), transparent);
+      animation:scrollBar 1.8s ease-in-out infinite;
     }
-    @keyframes scrollBar {
-      0%,100% { opacity:1; transform:scaleY(1); }
-      50%      { opacity:0.3; transform:scaleY(0.5); }
-    }
-
-    /* ── TRUST BAR ── */
-    .trust-bar {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      padding: 1.4rem 3rem;
-    }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: var(--text2);
-      font-weight: 500;
-    }
-    .trust-icon { font-size: 1rem; }
-
-    /* ── SECTION SHARED ── */
-    .section-label {
-      display: inline-block;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 0.9rem;
-    }
-    .section-title {
-      font-family: 'Inter', sans-serif;
-      font-weight: 800;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-      color: var(--text);
-    }
-
-    /* ── HOW IT WORKS ── */
-    #how-it-works {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 7rem 3rem;
-      text-align: center;
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 1.5rem;
-      margin-top: 3.5rem;
-      position: relative;
-    }
-    .steps-grid::before {
-      content: '';
-      position: absolute;
-      top: 58px;
-      left: calc(16.66% + 1rem);
-      right: calc(16.66% + 1rem);
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--green-mid), var(--green-mid), transparent);
-    }
-
-    .step-card {
-      position: relative;
-      z-index: 1;
-      padding: 2.5rem 2rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: var(--shadow-sm);
-      text-align: center;
-      opacity: 0; transform: translateY(36px);
-      transition: box-shadow 0.3s, transform 0.3s;
-    }
-    .step-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
-
-    .step-num {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: var(--green);
-      margin-bottom: 1.2rem;
-    }
-    .step-icon-wrap {
-      width: 68px; height: 68px;
-      border-radius: 50%;
-      background: var(--green-light);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1.4rem;
-    }
-    .step-icon-wrap img { width: 38px; height: 38px; object-fit: contain; }
-    .step-card h3 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: var(--text);
-      margin-bottom: 0.6rem;
-    }
-    .step-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.65; }
-
-    /* ── PRODUCT ── */
-    #product {
-      background: var(--bg2);
-      padding: 6rem 0;
-    }
-    .product-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 3rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: center;
-    }
-
-    /* Three.js canvas for product orbit */
-    .product-visual {
-      position: relative;
-      height: 480px;
-      border-radius: 24px;
-      overflow: hidden;
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-    #product-canvas { width: 100%; height: 100%; }
-
-
-    .product-info {}
-    .product-title {
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      letter-spacing: -0.03em;
-      color: var(--text);
-      margin-top: 0.8rem;
-      line-height: 1.05;
-    }
-    .product-title .green { color: var(--green); }
-    .product-desc {
-      margin-top: 1.1rem;
-      font-size: 1rem;
-      color: var(--text2);
-      line-height: 1.7;
-    }
-
-    .ingredients { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.65rem; }
-    .ing-row { display: flex; align-items: center; gap: 0.75rem; }
-    .ing-label { font-size: 0.8rem; color: var(--text2); width: 110px; flex-shrink: 0; }
-    .ing-bar-wrap { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
-    .ing-bar { height: 100%; border-radius: 3px; transform-origin: left; transform: scaleX(0); transition: transform 1.2s ease; }
-    .ing-bar.animated { transform: scaleX(1); }
-    .ing-g { font-size: 0.75rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
-
-    .nutrition-row {
-      display: grid;
-      grid-template-columns: repeat(4,1fr);
-      gap: 0.75rem;
-      margin-top: 2rem;
-      padding: 1.25rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
-    .nut-item { text-align: center; }
-    .nut-val { font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--green); }
-    .nut-key { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
-
-    .price-block {
-      margin-top: 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-    }
-    .price-main { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 900; color: var(--text); }
-    .price-per  { font-size: 0.8rem; color: var(--muted); }
-    .price-badge {
-      padding: 0.35rem 0.85rem;
-      background: var(--green-light);
-      border: 1px solid rgba(109,181,32,0.35);
-      border-radius: 100px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--green-d);
-    }
-
-    /* ── MARQUEE ── */
-    .marquee-wrapper {
-      overflow: hidden;
-      padding: 1.4rem 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: var(--bg2);
-    }
-    .marquee-track { display: flex; width: max-content; animation: marquee 22s linear infinite; }
-    .marquee-item {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(0,0,0,0.22);
-      display: flex;
-      align-items: center;
-      gap: 1.4rem;
-      padding: 0 1.4rem;
-      white-space: nowrap;
-    }
-    .marquee-dot { color: var(--green); font-size: 0.4rem; }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-    /* ── REVIEWS ── */
-    #reviews {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 7rem 3rem;
-    }
-    .reviews-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 2.5rem;
-    }
-    .stars { display: flex; gap: 3px; margin-bottom: 0.4rem; }
-    .star  { color: #f59e0b; font-size: 0.9rem; }
-
-    .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 1.2rem;
-    }
-    .review-card {
-      padding: 1.75rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow-sm);
-      opacity: 0; transform: translateY(28px);
-      transition: box-shadow 0.3s;
-    }
-    .review-card:hover { box-shadow: var(--shadow-md); }
-    .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
-    .reviewer-name { font-weight: 700; font-size: 0.9rem; color: var(--text); }
-    .reviewer-date { font-size: 0.7rem; color: var(--muted); }
-    .review-text   { font-size: 0.875rem; color: var(--text2); line-height: 1.7; }
-
-    /* ── COMMUNITY ── */
-    #community {
-      margin: 0 3rem 0;
-      border-radius: 28px;
-      overflow: hidden;
-      position: relative;
-      min-height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .community-bg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      opacity: 0.35;
-    }
-    .community-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(246,251,240,0.88), rgba(109,181,32,0.15));
-    }
-    .community-content {
-      position: relative; z-index: 2;
-      padding: 4rem 2rem;
-      opacity: 0; transform: translateY(24px);
-    }
-    .community-content h2 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      color: var(--text);
-      letter-spacing: -0.025em;
-      margin-bottom: 0.8rem;
-    }
-    .community-content h2 span { color: var(--green); }
-    .community-content p { color: var(--text2); font-size: 1rem; margin-bottom: 1.8rem; line-height: 1.6; }
-
-    /* ── PRICING ── */
-    #cta {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 4rem 3rem 7rem;
-    }
-    .cta-header { text-align: center; margin-bottom: 2.5rem; }
-    .cta-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    .cta-card {
-      padding: 2.5rem;
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow-sm);
-      opacity: 0; transform: translateY(28px);
-      position: relative;
-      overflow: hidden;
-      transition: box-shadow 0.3s;
-    }
-    .cta-card:hover { box-shadow: var(--shadow-md); }
-    .cta-card.featured {
-      border-color: var(--green);
-      background: linear-gradient(135deg, #f4fce8, #ffffff);
-    }
-    .cta-card.featured::before {
-      content: 'BEST VALUE';
-      position: absolute;
-      top: 1.1rem; right: 1.1rem;
-      padding: 0.28rem 0.7rem;
-      background: var(--green);
-      color: #fff;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      border-radius: 100px;
-    }
-    .cta-card h3 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--text); margin-bottom: 0.4rem; }
-    .card-desc   { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.3rem; }
-    .cta-price   { font-family: 'Inter', sans-serif; font-size: 2.6rem; font-weight: 900; color: var(--text); line-height: 1; }
-    .cta-price .curr { font-size: 1.4rem; vertical-align: top; margin-top: 0.25rem; display: inline-block; }
-    .cta-price-per { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; margin-bottom: 1.6rem; }
-    .cta-features { list-style: none; margin-bottom: 1.8rem; display: flex; flex-direction: column; gap: 0.6rem; }
-    .cta-features li {
-      display: flex; align-items: center; gap: 0.55rem;
-      font-size: 0.875rem; color: var(--text2);
-    }
-    .cta-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+    @keyframes scrollBar { 0%,100%{opacity:1;transform:scaleY(1)} 50%{opacity:0.3;transform:scaleY(0.5)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
     /* ── FOOTER ── */
     footer {
-      padding: 3rem 3rem 2rem;
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 2rem;
-      background: var(--bg2);
+      position:relative; z-index:2; background:var(--bg);
+      border-top:1px solid var(--gb);
+      padding:3rem 3rem 2rem;
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:2rem;
     }
-    .footer-brand p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-top: 0.8rem; }
-    .footer-brand img { height: 30px; }
-    .footer-links h4 { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.9rem; }
-    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
-    .footer-links a { font-size: 0.82rem; color: var(--text2); text-decoration: none; transition: color 0.25s; }
-    .footer-links a:hover { color: var(--green); }
+    .footer-brand p { font-size:0.8rem; color:var(--muted); line-height:1.6; margin-top:0.8rem; }
+    .footer-links h4 { font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.9rem; }
+    .footer-links ul { list-style:none; display:flex; flex-direction:column; gap:0.45rem; }
+    .footer-links a  { font-size:0.82rem; color:var(--text2); text-decoration:none; transition:color 0.25s; }
+    .footer-links a:hover { color:var(--green); }
     .footer-copy {
-      grid-column: 1 / -1;
-      padding-top: 1.8rem;
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
+      grid-column:1/-1; padding-top:1.8rem; border-top:1px solid var(--gb);
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .footer-copy p { font-size: 0.75rem; color: var(--muted); }
+    .footer-copy p { font-size:0.72rem; color:var(--muted); }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-      .hero-inner { grid-template-columns: 1fr; padding: 7rem 2rem 4rem; text-align: center; }
-      .hero-perks  { align-items: center; }
-      .hero-actions { justify-content: center; }
-      .hero-visual { height: 380px; }
-      .product-inner { grid-template-columns: 1fr; gap: 3rem; }
-      .cta-inner { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
-      footer { grid-template-columns: 1fr 1fr; }
+    @media (max-width:1024px) {
+      .pi-split, .pi-rsplit { grid-template-columns:1fr; }
+      .hero-spacer, .product-spacer { display:none; }
+      .s-sub { max-width:100%; }
+      .hero-stats { flex-wrap:wrap; gap:1.5rem; }
+      .cta-grid { grid-template-columns:1fr; max-width:440px; }
     }
-
-    @media (max-width: 768px) {
-      /* NAV */
-      nav { padding: 1rem 1.5rem; }
-      .nav-links { display: none; }
-
-      /* HERO */
-      .hero-inner { padding: 5.5rem 1.5rem 3rem; gap: 2rem; }
-      .hero-visual { height: 280px; }
-      .hero-actions { flex-direction: column; gap: 0.7rem; }
-      .btn-primary, .btn-ghost { width: 100%; text-align: center; }
-
-      /* TRUST BAR */
-      .trust-bar { flex-wrap: wrap; gap: 0.9rem 1.5rem; padding: 1.2rem 1.5rem; justify-content: flex-start; }
-
-      /* HOW IT WORKS */
-      #how-it-works { padding: 5rem 1.5rem; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .steps-grid::before { display: none; }
-
-      /* PRODUCT */
-      #product { padding: 4rem 0; }
-      .product-inner { padding: 0 1.5rem; gap: 2rem; }
-      .product-visual { height: 300px; }
-      .nutrition-row { grid-template-columns: repeat(2,1fr); }
-
-      /* REVIEWS */
-      #reviews { padding: 5rem 1.5rem; }
-      .reviews-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .reviews-grid { grid-template-columns: 1fr; }
-
-      /* COMMUNITY */
-      #community { margin: 0 1rem; border-radius: 20px; }
-
-      /* PRICING */
-      #cta { padding: 3rem 1.5rem 5rem; }
-      .cta-inner { max-width: 100%; }
-
-      /* FOOTER */
-      footer { padding: 2.5rem 1.5rem 1.5rem; grid-template-columns: 1fr; }
-      .footer-copy { flex-direction: column; gap: 0.6rem; text-align: center; }
+    @media (max-width:768px) {
+      nav { padding:1rem 1.5rem; }
+      .nav-links { display:none; }
+      .panel-inner { padding:0 1.5rem; }
+      .steps-row { grid-template-columns:1fr; }
+      .reviews-grid { grid-template-columns:1fr; overflow-y:auto; max-height:60vh; }
+      .nutrition-row { grid-template-columns:repeat(2,1fr); }
+      .hero-actions { flex-direction:column; }
+      .btn-primary, .btn-ghost { width:100%; text-align:center; }
+      footer { grid-template-columns:1fr; padding:2rem 1.5rem 1.5rem; }
+      .footer-copy { flex-direction:column; gap:0.5rem; text-align:center; }
     }
   </style>
 </head>
 <body>
 
+<!-- Fixed canvases — always behind everything -->
+<canvas id="bg-canvas"></canvas>
+<canvas id="model-canvas"></canvas>
+
 <!-- NAV -->
 <nav id="navbar">
-  <div class="nav-logo">
-    <img
-      src="https://cdn-ns.nanosmoothies.com/optimized_images/logo-main.webp"
-      alt="nano smoothies"
-      onerror="this.outerHTML='<div class=\'nav-logo-fallback\'>nano<span>smoothies®</span></div>'"
-    />
-  </div>
+  <div class="nav-logo">nano<span>smoothies®</span></div>
   <ul class="nav-links">
-    <li><a href="#how-it-works">How it Works</a></li>
-    <li><a href="#product">Shop</a></li>
-    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#panel-how">How it Works</a></li>
+    <li><a href="#panel-product">Shop</a></li>
+    <li><a href="#panel-reviews">Reviews</a></li>
   </ul>
   <button class="nav-cta">Buy Now — £2/sachet</button>
 </nav>
 
-<!-- HERO -->
-<section id="hero">
-  <canvas id="hero-canvas"></canvas>
-  <div class="hero-blob blob-1"></div>
-  <div class="hero-blob blob-2"></div>
+<!-- ════════════════════════════════════════
+     PANEL 1 — HERO
+════════════════════════════════════════ -->
+<section class="panel" id="panel-hero">
+  <div class="panel-inner pi-split">
 
-  <div class="hero-inner">
-
-    <!-- LEFT: text -->
-    <div class="hero-text">
+    <div id="hero-text">
       <div class="hero-badge">🇬🇧 Born in London · 100% Natural</div>
       <h1 class="hero-title">
-        Fuel Your Day<br>in <span class="green">10 Seconds.</span>
+        Fuel Your Day<br>in <span class="glow">10 Seconds.</span>
       </h1>
-      <p class="hero-sub">
-        Freeze-dried fruit &amp; greens in a sachet.<br>
-        No prep. No mess. Just real fruit power.
-      </p>
+      <p class="s-sub">Freeze-dried fruit &amp; greens in a sachet. No prep. No mess. Just real fruit power.</p>
       <div class="hero-perks">
         <span class="perk"><span class="perk-dot"></span>179g fresh fruit equivalent per sachet</span>
         <span class="perk"><span class="perk-dot"></span>Zero added sugar · 100% natural</span>
@@ -753,112 +330,80 @@
         <button class="btn-primary">Shop Now — from £2</button>
         <button class="btn-ghost">See How It Works</button>
       </div>
+      <div class="hero-stats">
+        <div><div class="stat-val">4.9★</div><div class="stat-key">200+ reviews</div></div>
+        <div><div class="stat-val">179g</div><div class="stat-key">fresh fruit / sachet</div></div>
+        <div><div class="stat-val">10s</div><div class="stat-key">to ready</div></div>
+      </div>
     </div>
 
-    <!-- RIGHT: 3D smoothie cup -->
-    <div class="hero-visual">
-      <canvas id="hero-model-canvas"></canvas>
-    </div>
-
-  </div><!-- /hero-inner -->
-
-  <div class="scroll-hint">
-    <div class="bar"></div>
-    <span>Scroll</span>
+    <div class="hero-spacer"></div><!-- 3D lives in fixed canvas -->
   </div>
+
+  <div class="scroll-hint"><div class="bar"></div><span>Scroll</span></div>
 </section>
 
-<!-- TRUST BAR -->
-<div class="trust-bar">
-  <div class="trust-item"><span class="trust-icon">🚚</span> UK 48H Shipping</div>
-  <div class="trust-item"><span class="trust-icon">📬</span> Letterbox Delivery</div>
-  <div class="trust-item"><span class="trust-icon">🔄</span> 30-Day Money-Back</div>
-  <div class="trust-item"><span class="trust-icon">🌿</span> 100% Natural · No Fillers</div>
-  <div class="trust-item"><span class="trust-icon">♻️</span> Recyclable Sachets</div>
+<!-- ════════════════════════════════════════
+     MARQUEE STRIP
+════════════════════════════════════════ -->
+<div class="marquee-strip" style="z-index:3;">
+  <div class="marquee-track" id="marquee-track"></div>
 </div>
 
-<!-- HOW IT WORKS -->
-<section id="how-it-works">
-  <span class="section-label">Simple by design</span>
-  <h2 class="section-title">Your smoothie ready<br>in under 10 seconds.</h2>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-num">STEP 01</div>
-      <div class="step-icon-wrap">
-        <img src="https://cdn-ns.nanosmoothies.com/optimized_images/icon-vitamins.webp" alt="" onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem\'>📦</span>'" />
-      </div>
-      <h3>Tear the sachet</h3>
-      <p>Each 25g sachet holds 179g of freeze-dried fresh fruit and spinach, locking in 100% of the natural nutrients.</p>
+<!-- ════════════════════════════════════════
+     PANEL 2 — HOW IT WORKS
+════════════════════════════════════════ -->
+<section class="panel" id="panel-how">
+  <div class="panel-inner pi-center" style="margin:0 auto;">
+    <div id="how-header">
+      <div class="s-label">Simple by design</div>
+      <h2 class="s-title">Ready in <span class="glow">3 Steps</span></h2>
     </div>
-    <div class="step-card">
-      <div class="step-num">STEP 02</div>
-      <div class="step-icon-wrap">
-        <img src="https://cdn-ns.nanosmoothies.com/optimized_images/icon-bottle.webp" alt="" onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem\'>💧</span>'" />
+    <div class="steps-row">
+      <div class="step-card glass" id="step-1">
+        <div class="step-num">STEP 01</div>
+        <div class="step-icon">📦</div>
+        <h3>Tear the Sachet</h3>
+        <p>Each 25g sachet holds 179g of freeze-dried fresh fruit and spinach, locking in 100% of natural nutrients.</p>
       </div>
-      <h3>Pour + add water</h3>
-      <p>Tip the powder into a shaker or glass with 300ml of cold water. No blender, no prep — mixes in seconds.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">STEP 03</div>
-      <div class="step-icon-wrap">
-        <img src="https://cdn-ns.nanosmoothies.com/optimized_images/icon-glass.webp" alt="" onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem\'>🥤</span>'" />
+      <div class="step-card glass" id="step-2">
+        <div class="step-num">STEP 02</div>
+        <div class="step-icon">💧</div>
+        <h3>Pour + Add Water</h3>
+        <p>Tip the powder into a shaker or glass with 300ml of cold water. No blender, no prep — mixes in seconds.</p>
       </div>
-      <h3>Shake &amp; enjoy</h3>
-      <p>Ten seconds of shaking and you're done. Real fruit goodness, anywhere — desk, gym, commute.</p>
+      <div class="step-card glass" id="step-3">
+        <div class="step-num">STEP 03</div>
+        <div class="step-icon">⚡</div>
+        <h3>Shake &amp; Go</h3>
+        <p>Ten seconds of shaking and you're done. Real fruit goodness, anywhere — desk, gym, commute.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PRODUCT -->
-<section id="product">
-  <div class="product-inner">
-    <div class="product-visual">
-      <canvas id="product-canvas"></canvas>
-      <div id="product-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.8rem;transition:opacity 0.5s;">
-        <div style="width:36px;height:36px;border:2px solid rgba(109,181,32,0.2);border-top-color:#6db520;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
-        <div style="width:100px;height:3px;background:rgba(0,0,0,0.07);border-radius:2px;overflow:hidden;">
-          <div id="product-progress" style="height:100%;background:#6db520;border-radius:2px;width:0%;transition:width 0.3s;"></div>
-        </div>
-        <p style="font-size:0.7rem;letter-spacing:0.1em;color:#7a8a72;text-transform:uppercase;">Loading 3D model…</p>
-      </div>
-    </div>
+<!-- ════════════════════════════════════════
+     PANEL 3 — PRODUCT
+════════════════════════════════════════ -->
+<section class="panel" id="panel-product">
+  <div class="panel-inner pi-rsplit">
 
-    <div class="product-info">
-      <span class="section-label">Best Seller</span>
-      <h2 class="product-title">nano smoothies®<br><span class="green">Original Blend</span></h2>
-      <p class="product-desc">
-        Blueberries, raspberries, banana, pineapple and spinach — freeze-dried and crushed into one 25g sachet. Two of your 5-a-day in seconds.
-      </p>
+    <div class="product-spacer"></div><!-- 3D lives in fixed canvas, camera moves left -->
+
+    <div class="product-text-col" id="product-text">
+      <div class="s-label">Best Seller</div>
+      <h2 class="product-title">nano smoothies®<br><span class="glow">Original Blend</span></h2>
+      <p class="product-desc">Blueberries, raspberries, banana, pineapple and spinach — freeze-dried into one 25g sachet. Two of your 5-a-day in seconds.</p>
 
       <div class="ingredients">
-        <div class="ing-row">
-          <span class="ing-label">🫐 Blueberries</span>
-          <div class="ing-bar-wrap"><div class="ing-bar" style="width:60%;background:#7c3aed;"></div></div>
-          <span class="ing-g">42g</span>
-        </div>
-        <div class="ing-row">
-          <span class="ing-label">🍓 Raspberries</span>
-          <div class="ing-bar-wrap"><div class="ing-bar" style="width:30%;background:#dc2626;"></div></div>
-          <span class="ing-g">21g</span>
-        </div>
-        <div class="ing-row">
-          <span class="ing-label">🍌 Banana</span>
-          <div class="ing-bar-wrap"><div class="ing-bar" style="width:43%;background:#d97706;"></div></div>
-          <span class="ing-g">30g</span>
-        </div>
-        <div class="ing-row">
-          <span class="ing-label">🍍 Pineapple</span>
-          <div class="ing-bar-wrap"><div class="ing-bar" style="width:91%;background:#ea580c;"></div></div>
-          <span class="ing-g">64g</span>
-        </div>
-        <div class="ing-row">
-          <span class="ing-label">🌿 Spinach</span>
-          <div class="ing-bar-wrap"><div class="ing-bar" style="width:31%;background:#16a34a;"></div></div>
-          <span class="ing-g">22g</span>
-        </div>
+        <div class="ing-row"><span class="ing-label">🫐 Blueberries</span><div class="ing-bar-wrap"><div class="ing-bar" style="width:60%;background:#7c3aed;"></div></div><span class="ing-g">42g</span></div>
+        <div class="ing-row"><span class="ing-label">🍓 Raspberries</span><div class="ing-bar-wrap"><div class="ing-bar" style="width:30%;background:#dc2626;"></div></div><span class="ing-g">21g</span></div>
+        <div class="ing-row"><span class="ing-label">🍌 Banana</span>    <div class="ing-bar-wrap"><div class="ing-bar" style="width:43%;background:#d97706;"></div></div><span class="ing-g">30g</span></div>
+        <div class="ing-row"><span class="ing-label">🍍 Pineapple</span> <div class="ing-bar-wrap"><div class="ing-bar" style="width:91%;background:#ea580c;"></div></div><span class="ing-g">64g</span></div>
+        <div class="ing-row"><span class="ing-label">🌿 Spinach</span>   <div class="ing-bar-wrap"><div class="ing-bar" style="width:31%;background:#16a34a;"></div></div><span class="ing-g">22g</span></div>
       </div>
 
-      <div class="nutrition-row">
+      <div class="nutrition-row glass">
         <div class="nut-item"><div class="nut-val">91</div><div class="nut-key">kcal</div></div>
         <div class="nut-item"><div class="nut-val">18g</div><div class="nut-key">Natural sugars</div></div>
         <div class="nut-item"><div class="nut-val">3g</div><div class="nut-key">Fibre</div></div>
@@ -866,14 +411,10 @@
       </div>
 
       <div class="price-block">
-        <div>
-          <div class="price-main">£31.25</div>
-          <div class="price-per">14 sachets · ~£2.32 each · inc. delivery</div>
-        </div>
-        <div class="price-badge">Subscribe &amp; Save 15%</div>
+        <div class="price-main">£31.25</div>
+        <span class="price-badge">Subscribe &amp; Save 15%</span>
       </div>
-
-      <div class="hero-actions" style="opacity:1;transform:none;margin-top:1.5rem;">
+      <div class="hero-actions" style="margin-top:1.5rem;">
         <button class="btn-primary">Add to Basket</button>
         <button class="btn-ghost">Nutrition Info</button>
       </div>
@@ -881,111 +422,82 @@
   </div>
 </section>
 
-<!-- MARQUEE -->
-<div class="marquee-wrapper">
-  <div class="marquee-track" id="marquee-track"></div>
-</div>
-
-<!-- REVIEWS -->
-<section id="reviews">
-  <div class="reviews-header">
-    <div>
-      <span class="section-label">Social proof</span>
-      <h2 class="section-title">What the<br>Nano Fam says.</h2>
-    </div>
-    <div style="text-align:right;">
-      <div class="stars">
-        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+<!-- ════════════════════════════════════════
+     PANEL 4 — REVIEWS
+════════════════════════════════════════ -->
+<section class="panel" id="panel-reviews">
+  <div class="panel-inner" style="grid-template-columns:1fr;max-width:1100px;margin:0 auto;">
+    <div id="reviews-content">
+      <div class="reviews-header">
+        <div>
+          <div class="s-label">Social proof</div>
+          <h2 class="s-title">What the <span class="glow">Nano Fam</span> says.</h2>
+        </div>
+        <div style="text-align:right;">
+          <div class="reviews-agg">4.9</div>
+          <div class="stars">★★★★★</div>
+          <div class="reviews-count">200+ verified reviews</div>
+        </div>
       </div>
-      <p style="font-size:0.83rem;color:var(--muted);">200+ verified reviews</p>
-    </div>
-  </div>
-  <div class="reviews-grid">
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Jete</span><span class="reviewer-date">May 23, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"The Dark Berry sachet reminds me of Bissap from back home. I've never tasted anything quite like it, so full of flavour. I love it!"</p>
-    </div>
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Jamie</span><span class="reviewer-date">Feb 24, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"2 of my 5-a-day in seconds? Unreal. I drink it mid-morning or after gym. Couldn't believe how small the ingredients list was."</p>
-    </div>
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Zara</span><span class="reviewer-date">Apr 15, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"I've seen so many 'wellness products' with sweeteners or fillers. This doesn't — FINALLY something actually natural."</p>
-    </div>
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Kev</span><span class="reviewer-date">Mar 12, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"Tastes so fresh and fruity! Perfect sweetness, no weird aftertaste. Defo using these before every gym session."</p>
-    </div>
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Anna</span><span class="reviewer-date">May 10, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"I just throw one in my bag and mix it when I need a boost. Helps me snack less and eat more fruit. The Best Life Hack."</p>
-    </div>
-    <div class="review-card">
-      <div class="review-header"><span class="reviewer-name">Ian</span><span class="reviewer-date">May 3, 2025</span></div>
-      <div class="stars" style="margin-bottom:.7rem;"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      <p class="review-text">"The sachet's recyclable, no pointless plastic. nanosmoothies actually walks the talk. So nice to see a company doing it right."</p>
+      <div class="reviews-grid">
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Jete</span><span class="reviewer-date">May 23, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"The Dark Berry sachet reminds me of Bissap from back home. I've never tasted anything quite like it, so full of flavour. I love it!"</p></div>
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Jamie</span><span class="reviewer-date">Feb 24, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"2 of my 5-a-day in seconds? Unreal. I drink it mid-morning or after gym. Couldn't believe how small the ingredients list was."</p></div>
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Zara</span><span class="reviewer-date">Apr 15, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"I've seen so many 'wellness products' with sweeteners or fillers. This doesn't — FINALLY something actually natural."</p></div>
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Kev</span><span class="reviewer-date">Mar 12, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"Tastes so fresh and fruity! Perfect sweetness, no weird aftertaste. Defo using these before every gym session."</p></div>
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Anna</span><span class="reviewer-date">May 10, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"I just throw one in my bag and mix it when I need a boost. Helps me snack less and eat more fruit. The Best Life Hack."</p></div>
+        <div class="review-card glass"><div class="review-top"><span class="reviewer-name">Ian</span><span class="reviewer-date">May 3, 2025</span></div><div class="stars">★★★★★</div><p class="review-text">"The sachet's recyclable, no pointless plastic. nanosmoothies actually walks the talk. So nice to see a company doing it right."</p></div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- COMMUNITY -->
-<div id="community">
-  <img class="community-bg" src="https://cdn-ns.nanosmoothies.com/optimized_images/community.webp" alt="" onerror="this.style.display='none'" />
-  <div class="community-overlay"></div>
-  <div class="community-content">
-    <span class="section-label">Join the movement</span>
-    <h2>Become part of our<br><span>Community!</span></h2>
-    <p>Share your creations using nano smoothies®<br>and get featured on our page.</p>
-    <button class="btn-primary">Follow us on Instagram</button>
-  </div>
-</div>
-
-<!-- PRICING -->
-<section id="cta">
-  <div class="cta-header">
-    <span class="section-label">Pricing</span>
-    <h2 class="section-title">Affordable health.<br>No compromises.</h2>
-  </div>
-  <div class="cta-inner">
-    <div class="cta-card">
-      <h3>One-Time Purchase</h3>
-      <p class="card-desc">Try it once, no commitment.</p>
-      <div class="cta-price"><span class="curr">£</span>31.25</div>
-      <p class="cta-price-per">14 sachets · ~£2.32 per smoothie · inc. delivery</p>
-      <ul class="cta-features">
-        <li>14 sachets per box</li>
-        <li>UK 48H letterbox delivery</li>
-        <li>30-day money-back guarantee</li>
-        <li>Free returns</li>
-      </ul>
-      <button class="btn-ghost" style="width:100%;">Buy Once</button>
+<!-- ════════════════════════════════════════
+     PANEL 5 — CTA / PRICING
+════════════════════════════════════════ -->
+<section class="panel" id="panel-cta">
+  <div class="panel-inner pi-center" style="margin:0 auto;" id="cta-content">
+    <div>
+      <div class="s-label">Pricing</div>
+      <h2 class="s-title">Affordable health.<br><span class="glow">No compromises.</span></h2>
+      <p class="s-sub" style="margin:0.8rem auto 0;text-align:center;">Start with a one-off or lock in 15% savings every month.</p>
     </div>
-    <div class="cta-card featured">
-      <h3>Subscribe &amp; Save 15%</h3>
-      <p class="card-desc">Delivered every 4 weeks. Cancel anytime.</p>
-      <div class="cta-price"><span class="curr">£</span>26.95</div>
-      <p class="cta-price-per"><s style="opacity:.45">£31.25</s> · 14 sachets · ~£1.93 per smoothie</p>
-      <ul class="cta-features">
-        <li>Save £4.30 every order</li>
-        <li>Automatic letterbox delivery</li>
-        <li>No thinking, just mixing</li>
-        <li>Cancel anytime, no fees</li>
-      </ul>
-      <button class="btn-primary" style="width:100%;">Subscribe &amp; Save</button>
+    <div class="cta-grid">
+      <div class="cta-card glass">
+        <h3>One-Time Purchase</h3>
+        <p class="card-desc">Try it once, no commitment.</p>
+        <div class="cta-price"><span class="curr">£</span>31.25</div>
+        <p class="cta-price-per">14 sachets · ~£2.32 per smoothie · inc. delivery</p>
+        <ul class="cta-features">
+          <li>14 sachets per box</li>
+          <li>UK 48H letterbox delivery</li>
+          <li>30-day money-back guarantee</li>
+          <li>Free returns</li>
+        </ul>
+        <button class="btn-ghost" style="width:100%;text-align:center;">Buy Once</button>
+      </div>
+      <div class="cta-card glass featured">
+        <h3>Subscribe &amp; Save 15%</h3>
+        <p class="card-desc">Delivered every 4 weeks. Cancel anytime.</p>
+        <div class="cta-price"><span class="curr">£</span>26.95</div>
+        <p class="cta-price-per"><s style="opacity:.4">£31.25</s> · 14 sachets · ~£1.93 per smoothie</p>
+        <ul class="cta-features">
+          <li>Save £4.30 every order</li>
+          <li>Automatic letterbox delivery</li>
+          <li>No thinking, just mixing</li>
+          <li>Cancel anytime, no fees</li>
+        </ul>
+        <button class="btn-primary" style="width:100%;text-align:center;">Subscribe &amp; Save</button>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
 <footer>
   <div class="footer-brand">
-    <img src="https://cdn-ns.nanosmoothies.com/optimized_images/logo-main.webp" alt="nano smoothies" onerror="this.style.display='none'" />
+    <div class="nav-logo" style="font-size:1rem;">nano<span>smoothies®</span></div>
     <p>UK-based company bringing a nutrition revolution to the entire planet, one pure, unmodified natural sachet at a time.</p>
   </div>
   <div class="footer-links">
@@ -1013,183 +525,120 @@
   </div>
 </footer>
 
+<!-- ════════════════════════════════════════
+     THREE.JS — fixed persistent scene
+════════════════════════════════════════ -->
 <script type="module">
 import * as THREE from 'three';
-import { FBXLoader  } from 'three/addons/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-/* ── MARQUEE ── */
-const items = [
-  '179g Fresh Fruit Per Sachet','Zero Added Sugar','Freeze Dried',
-  'Born in London 🇬🇧','10 Seconds to Ready','Letterbox Delivery',
-  '100% Natural','30-Day Guarantee','No Blender Needed',
-  '179g Fresh Fruit Per Sachet','Zero Added Sugar','Freeze Dried',
-  'Born in London 🇬🇧','10 Seconds to Ready','Letterbox Delivery',
-  '100% Natural','30-Day Guarantee','No Blender Needed',
-];
-const track = document.getElementById('marquee-track');
-items.forEach(t => {
-  const el = document.createElement('div');
-  el.className = 'marquee-item';
-  el.innerHTML = `${t}<span class="marquee-dot">●</span>`;
-  track.appendChild(el);
-});
-
-/* ── HERO CANVAS — soft light particles ── */
-(function heroParticles() {
-  const canvas   = document.getElementById('hero-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+/* ── BG PARTICLES ── */
+(function bgScene() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.z = 14;
 
-  const count = 900;
-  const pos   = new Float32Array(count * 3);
-  const col   = new Float32Array(count * 3);
-
-  const palette = [
-    [0.43, 0.71, 0.13],  // green
-    [0.55, 0.85, 0.22],  // light green
-    [0.85, 0.55, 0.22],  // orange
-    [0.78, 0.18, 0.22],  // raspberry
-    [0.43, 0.22, 0.75],  // blueberry
-  ];
-
+  const count = 700, pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
+  const palette = [[0.43,0.71,0.13],[0.25,0.55,0.1],[0.18,0.4,0.08],[0.55,0.85,0.22]];
   for (let i = 0; i < count; i++) {
-    pos[i*3]   = (Math.random() - 0.5) * 60;
-    pos[i*3+1] = (Math.random() - 0.5) * 40;
-    pos[i*3+2] = (Math.random() - 0.5) * 30 - 5;
-    const c = palette[Math.floor(Math.random() * palette.length)];
-    col[i*3] = c[0]; col[i*3+1] = c[1]; col[i*3+2] = c[2];
+    pos[i*3]=(Math.random()-.5)*60; pos[i*3+1]=(Math.random()-.5)*40; pos[i*3+2]=(Math.random()-.5)*30-5;
+    const c=palette[Math.floor(Math.random()*palette.length)];
+    col[i*3]=c[0]; col[i*3+1]=c[1]; col[i*3+2]=c[2];
   }
-
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col,3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ vertexColors:true, size:0.09, transparent:true, opacity:0.55 })));
 
-  const mat = new THREE.PointsMaterial({
-    vertexColors: true,
-    size: 0.12,
-    transparent: true,
-    opacity: 0.3,
-  });
-  scene.add(new THREE.Points(geo, mat));
-
-  let mx = 0, my = 0;
-  window.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-    my = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  let t = 0;
-  (function animate() {
-    requestAnimationFrame(animate);
-    t += 0.004;
-    camera.position.x += (mx * 0.8 - camera.position.x) * 0.03;
-    camera.position.y += (-my * 0.5 - camera.position.y) * 0.03;
-    camera.lookAt(0, 0, 0);
-    renderer.render(scene, camera);
-  })();
+  let mx=0, my=0;
+  window.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-.5)*2; my=(e.clientY/window.innerHeight-.5)*2; });
+  window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+  (function loop() { requestAnimationFrame(loop); camera.position.x+=(mx*.8-camera.position.x)*.025; camera.position.y+=(-my*.5-camera.position.y)*.025; camera.lookAt(0,0,0); renderer.render(scene,camera); })();
 })();
 
-
-/* ── HERO MODEL — frappe + orbiting fruits (Kenney GLB) ── */
-(function heroModelScene() {
-  const canvas = document.getElementById('hero-model-canvas');
-  const wrap   = canvas.parentElement;
-
+/* ── MAIN MODEL SCENE (fixed, persists all panels) ── */
+(function mainScene() {
+  const canvas   = document.getElementById('model-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
-  camera.position.set(0, 1.0, 7);
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(3.5, 0.5, 7);
   camera.lookAt(0, 0.5, 0);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-  keyLight.position.set(5, 8, 6);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
-  const greenFill = new THREE.PointLight(0x6db520, 3.0, 22);
-  greenFill.position.set(-4, 2, 4);
-  scene.add(greenFill);
-  const rimLight = new THREE.PointLight(0xfbbf24, 1.8, 18);
-  rimLight.position.set(3, -2, -4);
-  scene.add(rimLight);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+  const key = new THREE.DirectionalLight(0xffffff, 2.6); key.position.set(5,8,6); key.castShadow=true; scene.add(key);
+  const fill = new THREE.PointLight(0x6db520, 3.8, 26); fill.position.set(-4,2,4); scene.add(fill);
+  const rim  = new THREE.PointLight(0x88ff44, 1.6, 18); rim.position.set(3,-2,-4); scene.add(rim);
 
-  const loader = new GLTFLoader();
-
-  // ── FRAPPE (main cup) ──
-  const cupGroup = new THREE.Group();
+  const loader    = new GLTFLoader();
+  const cupGroup  = new THREE.Group();
   scene.add(cupGroup);
 
-  loader.load('./frappe.glb', (gltf) => {
-    const model = gltf.scene;
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const scale = 2.8 / Math.max(size.x, size.y, size.z);
-    model.scale.setScalar(scale);
-    box.setFromObject(model);
-    model.position.sub(box.getCenter(new THREE.Vector3()));
-    model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
-    cupGroup.add(model);
+  loader.load('./frappe.glb', gltf => {
+    const m = gltf.scene;
+    const box = new THREE.Box3().setFromObject(m);
+    m.scale.setScalar(2.8 / Math.max(...box.getSize(new THREE.Vector3()).toArray()));
+    box.setFromObject(m); m.position.sub(box.getCenter(new THREE.Vector3()));
+    m.traverse(c => { if(c.isMesh) { c.castShadow=true; c.receiveShadow=true; } });
+    cupGroup.add(m);
   });
 
-  // ── ORBITING FRUITS ──
-  const fruitFiles = [
-    { file: 'strawberry.glb',   rad: 2.8, speed: 0.42, phase: 0.0,  tilt:  0.5, scale: 0.9 },
-    { file: 'apple-half.glb',   rad: 3.2, speed: 0.30, phase: 1.8,  tilt: -0.4, scale: 1.1 },
-    { file: 'lemon-half.glb',   rad: 2.5, speed: 0.50, phase: 3.5,  tilt:  0.8, scale: 1.0 },
-    { file: 'orange.glb',       rad: 3.0, speed: 0.36, phase: 5.0,  tilt: -0.6, scale: 1.0 },
-    { file: 'watermelon.glb',   rad: 3.4, speed: 0.26, phase: 2.4,  tilt:  0.3, scale: 0.7 },
-    { file: 'cherries.glb',     rad: 2.3, speed: 0.55, phase: 4.2,  tilt: -0.3, scale: 1.0 },
-    { file: 'coconut-half.glb', rad: 3.1, speed: 0.32, phase: 6.0,  tilt:  0.6, scale: 0.9 },
+  const fruitDefs = [
+    { file:'strawberry.glb',   rad:2.8, speed:0.42, phase:0.0,  tilt:0.5,  sc:0.9 },
+    { file:'apple-half.glb',   rad:3.2, speed:0.30, phase:1.8,  tilt:-0.4, sc:1.1 },
+    { file:'lemon-half.glb',   rad:2.5, speed:0.50, phase:3.5,  tilt:0.8,  sc:1.0 },
+    { file:'orange.glb',       rad:3.0, speed:0.36, phase:5.0,  tilt:-0.6, sc:1.0 },
+    { file:'watermelon.glb',   rad:3.4, speed:0.26, phase:2.4,  tilt:0.3,  sc:0.7 },
+    { file:'cherries.glb',     rad:2.3, speed:0.55, phase:4.2,  tilt:-0.3, sc:1.0 },
+    { file:'coconut-half.glb', rad:3.1, speed:0.32, phase:6.0,  tilt:0.6,  sc:0.9 },
   ];
-
   const fruits = [];
-  fruitFiles.forEach(def => {
-    loader.load('./' + def.file, (gltf) => {
-      const model = gltf.scene;
-      const box   = new THREE.Box3().setFromObject(model);
-      const size  = box.getSize(new THREE.Vector3());
-      const s     = (0.55 * def.scale) / Math.max(size.x, size.y, size.z);
-      model.scale.setScalar(s);
-      model.traverse(c => { if (c.isMesh) c.castShadow = true; });
-      scene.add(model);
-      fruits.push({ model, angle: def.phase, ...def });
+  fruitDefs.forEach(d => {
+    loader.load('./'+d.file, gltf => {
+      const m = gltf.scene;
+      const box = new THREE.Box3().setFromObject(m);
+      m.scale.setScalar((0.55*d.sc) / Math.max(...box.getSize(new THREE.Vector3()).toArray()));
+      m.traverse(c => { if(c.isMesh) c.castShadow=true; });
+      scene.add(m);
+      fruits.push({ model:m, angle:d.phase, ...d });
     });
   });
 
-  let mx = 0, my = 0;
-  window.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-    my = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-  window.addEventListener('resize', () => {
-    camera.aspect = wrap.clientWidth / wrap.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  });
+  // Camera target driven by active panel
+  const targets = {
+    hero:    { cx:3.5,  cy:0.5, cz:7.0 },
+    how:     { cx:0,    cy:0.5, cz:9.5 },
+    product: { cx:-3.5, cy:0.5, cz:6.5 },
+    reviews: { cx:3.8,  cy:0.5, cz:10  },
+    cta:     { cx:0,    cy:0.5, cz:11  },
+  };
+  let cur = targets.hero;
+  window.setScenePanel = p => { if(targets[p]) cur = targets[p]; };
 
-  let t = 0;
-  (function animate() {
-    requestAnimationFrame(animate);
+  let mx=0, my=0;
+  window.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-.5)*2; my=(e.clientY/window.innerHeight-.5)*2; });
+  window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+
+  let t=0;
+  (function loop() {
+    requestAnimationFrame(loop);
     t += 0.008;
 
-    cupGroup.rotation.y = t * 0.38 + mx * 0.18;
-    cupGroup.rotation.x = my * -0.07;
+    camera.position.x += (cur.cx + mx*0.28 - camera.position.x) * 0.04;
+    camera.position.y += (cur.cy + my*-0.12 - camera.position.y) * 0.04;
+    camera.position.z += (cur.cz - camera.position.z) * 0.04;
+    camera.lookAt(0, 0.5, 0);
+
+    cupGroup.rotation.y = t * 0.38;
     cupGroup.position.y = Math.sin(t * 0.65) * 0.18;
 
     fruits.forEach(f => {
@@ -1201,319 +650,146 @@ items.forEach(t => {
       f.model.rotation.x += 0.007;
     });
 
-    greenFill.intensity = 2.6 + Math.sin(t * 1.8) * 0.6;
+    fill.intensity = 3.4 + Math.sin(t*1.8) * 0.7;
     renderer.render(scene, camera);
   })();
 })();
+</script>
 
-/* ── PRODUCT CANVAS — Juice_Bottle.fbx ── */
-(function productScene() {
-  const canvas = document.getElementById('product-canvas');
-  const wrap   = canvas.parentElement;
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  renderer.shadowMap.enabled = true;
-
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 200);
-  camera.position.set(0, 0.5, 6);
-  camera.lookAt(0, 0, 0);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
-  keyLight.position.set(4, 8, 5);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
-
-  const greenFill = new THREE.PointLight(0x6db520, 3, 20);
-  greenFill.position.set(-4, 2, 3);
-  scene.add(greenFill);
-
-  const rimLight = new THREE.PointLight(0xfbbf24, 1.8, 18);
-  rimLight.position.set(3, -2, -3);
-  scene.add(rimLight);
-
-  const modelGroup = new THREE.Group();
-  scene.add(modelGroup);
-
-  // Fruit orbs while loading
-  const fruitDefs2 = [
-    { col: 0x7c3aed, size: 0.12, rad: 2.2, speed: 0.40, phase: 0,   tilt: 0.5  },
-    { col: 0xdc2626, size: 0.09, rad: 2.5, speed: 0.30, phase: 2.1, tilt:-0.4  },
-    { col: 0xd97706, size: 0.11, rad: 2.0, speed: 0.48, phase: 4.2, tilt: 0.9  },
-    { col: 0xea580c, size: 0.09, rad: 2.7, speed: 0.33, phase: 1.1, tilt:-0.6  },
-    { col: 0x16a34a, size: 0.10, rad: 2.3, speed: 0.52, phase: 3.1, tilt: 0.3  },
-  ];
-  const fruitMeshes2 = fruitDefs2.map(d => {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(d.size, 12, 12),
-      new THREE.MeshPhongMaterial({ color: d.col, emissive: d.col, emissiveIntensity: 0.3 })
-    );
-    scene.add(mesh);
-    return { mesh, angle: d.phase, ...d };
-  });
-
-  const ring2 = new THREE.Mesh(
-    new THREE.TorusGeometry(2.6, 0.022, 12, 80),
-    new THREE.MeshBasicMaterial({ color: 0x6db520, transparent: true, opacity: 0.18 })
-  );
-  scene.add(ring2);
-
-  new FBXLoader().load(
-    './Juice_Bottle.fbx',
-    (fbx) => {
-      const box    = new THREE.Box3().setFromObject(fbx);
-      const maxDim = Math.max(...box.getSize(new THREE.Vector3()).toArray());
-      fbx.scale.setScalar(3.0 / maxDim);
-      box.setFromObject(fbx);
-      fbx.position.sub(box.getCenter(new THREE.Vector3()));
-
-      fbx.traverse(child => {
-        if (!child.isMesh) return;
-        child.castShadow = child.receiveShadow = true;
-        const id = (child.name + ' ' + (child.material?.name || '')).toLowerCase();
-
-        if (id.includes('glass') || id.includes('bottle') || id.includes('cup')) {
-          child.material = new THREE.MeshPhongMaterial({
-            color: 0xc8e6ff, specular: 0xffffff, shininess: 500,
-            transparent: true, opacity: 0.22, side: THREE.DoubleSide,
-          });
-        } else if (id.includes('liquid') || id.includes('juice')) {
-          child.material = new THREE.MeshPhongMaterial({
-            color: 0x7c3aed, emissive: 0x4c1d95, emissiveIntensity: 0.15, shininess: 25,
-          });
-        } else if (id.includes('cap') || id.includes('lid') || id.includes('top')) {
-          child.material = new THREE.MeshPhongMaterial({ color: 0x6db520, shininess: 100 });
-        } else {
-          child.material = new THREE.MeshPhongMaterial({
-            color: 0xd4f0a8, specular: 0xffffff, shininess: 200,
-            transparent: true, opacity: 0.78, side: THREE.DoubleSide,
-          });
-        }
-      });
-
-      modelGroup.add(fbx);
-      const ov = document.getElementById('product-loading');
-      if (ov) { ov.style.opacity = '0'; setTimeout(() => ov.remove(), 500); }
-    },
-    (xhr) => {
-      if (xhr.lengthComputable) {
-        const bar = document.getElementById('product-progress');
-        if (bar) bar.style.width = Math.round(xhr.loaded / xhr.total * 100) + '%';
-      }
-    },
-    (err) => {
-      console.error('FBX error:', err);
-      const ov = document.getElementById('product-loading');
-      if (ov) ov.innerHTML = '<p style="color:#dc2626;font-size:0.75rem;text-align:center">Run via a local server<br>(npx serve .)</p>';
-    }
-  );
-
-  window.addEventListener('resize', () => {
-    camera.aspect = wrap.clientWidth / wrap.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  });
-
-  let t = 0;
-  (function animate() {
-    requestAnimationFrame(animate);
-    t += 0.007;
-
-    modelGroup.rotation.y = t * 0.25;
-    modelGroup.position.y = Math.sin(t * 0.7) * 0.12;
-
-    fruitMeshes2.forEach(f => {
-      f.angle += f.speed * 0.01;
-      f.mesh.position.x = Math.cos(f.angle) * f.rad;
-      f.mesh.position.z = Math.sin(f.angle) * f.rad;
-      f.mesh.position.y = Math.sin(f.angle * 0.7 + f.tilt) * 0.9 + modelGroup.position.y * 0.3;
-    });
-
-    ring2.rotation.y = t * 0.1;
-    greenFill.intensity = 2.8 + Math.sin(t * 1.8) * 0.6;
-    renderer.render(scene, camera);
-  })();
-})();
-
-/* ── GSAP ── */
+<!-- ════════════════════════════════════════
+     GSAP — panel pins + Lenis
+════════════════════════════════════════ -->
+<script>
 gsap.registerPlugin(ScrollTrigger);
 
-// Nav
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
-});
-
-// Hero entrance
-const htl = gsap.timeline({ delay: 0.2 });
-htl
-  .to('.hero-badge',   { opacity:1, y:0, duration:0.7, ease:'power3.out' })
-  .to('.hero-title',   { opacity:1, y:0, duration:0.9, ease:'power3.out' }, '-=0.4')
-  .to('.hero-sub',     { opacity:1, y:0, duration:0.7, ease:'power3.out' }, '-=0.5')
-  .to('.hero-perks',   { opacity:1, y:0, duration:0.6, ease:'power3.out' }, '-=0.4')
-  .to('.hero-actions', { opacity:1, y:0, duration:0.6, ease:'power3.out' }, '-=0.35')
-  .to('.hero-visual',  { opacity:1, x:0, duration:1.0, ease:'power3.out' }, 0.3)
-  .to('.scroll-hint',  { opacity:1, duration:0.5 }, '-=0.3');
-
-// How it works
-gsap.to('.step-card', {
-  scrollTrigger: { trigger:'#how-it-works', start:'top 75%' },
-  opacity:1, y:0, duration:0.8, stagger:0.14, ease:'power3.out',
-});
-gsap.from('#how-it-works .section-label, #how-it-works .section-title', {
-  scrollTrigger: { trigger:'#how-it-works', start:'top 80%' },
-  opacity:0, y:28, duration:0.7, stagger:0.1, ease:'power3.out',
-});
-
-// Product
-gsap.from('#product .product-visual', {
-  scrollTrigger: { trigger:'#product', start:'top 70%' },
-  opacity:0, x:-45, duration:1.0, ease:'power3.out',
-});
-gsap.from('#product .product-info > *', {
-  scrollTrigger: { trigger:'#product', start:'top 70%' },
-  opacity:0, y:28, duration:0.7, stagger:0.1, ease:'power3.out', delay:0.2,
-});
-
-// Ingredient bars
-ScrollTrigger.create({
-  trigger: '.ingredients',
-  start: 'top 80%',
-  onEnter: () => document.querySelectorAll('.ing-bar').forEach((b,i) =>
-    setTimeout(() => b.classList.add('animated'), i * 110)
-  ),
-});
-
-// Parallax on product visual
-gsap.to('#product .product-visual', {
-  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:1.5 },
-  y: -35,
-});
-
-// Reviews
-gsap.to('.review-card', {
-  scrollTrigger: { trigger:'#reviews', start:'top 75%' },
-  opacity:1, y:0, duration:0.7, stagger:0.09, ease:'power3.out',
-});
-
-// Community
-gsap.to('.community-content', {
-  scrollTrigger: { trigger:'#community', start:'top 75%' },
-  opacity:1, y:0, duration:0.9, ease:'power3.out',
-});
-gsap.to('.community-bg', {
-  scrollTrigger: { trigger:'#community', start:'top bottom', end:'bottom top', scrub:2 },
-  y:-50, scale:1.08,
-});
-
-// ── LENIS SMOOTH SCROLL ──
-const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+// Lenis smooth scroll
+const lenis = new Lenis({ lerp:0.08, smoothWheel:true });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(time => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
 
-// ── PARALLAX ──
-// Hero: cinematic fade + scale as you scroll past
-gsap.to('.hero-inner', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1.2 },
-  opacity: 0, scale: 0.93, ease:'none',
-});
-// Hero text drifts up
-gsap.to('.hero-text', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
-  y: -80, ease:'none',
-});
-// Hero 3D model drifts faster — pops forward
-gsap.to('.hero-visual', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:0.8 },
-  y: -160, ease:'none',
-});
-// Blobs drift + rotate — organic layered depth
-gsap.to('.blob-1', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1.5 },
-  y: -200, x: 60, rotation: 65, ease:'none',
-});
-gsap.to('.blob-2', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2 },
-  y: -90, x: -50, rotation: -80, ease:'none',
-});
-// Particles canvas — furthest back, barely moves
-gsap.to('#hero-canvas', {
-  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:3 },
-  y: -35, ease:'none',
-});
-// How it works — label slides from left, title drifts up
-gsap.from('#how-it-works .section-label', {
-  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'center center', scrub:1 },
-  x: -40, ease:'none',
-});
-gsap.to('#how-it-works .section-title', {
-  scrollTrigger: { trigger:'#how-it-works', start:'top bottom', end:'bottom top', scrub:1.5 },
-  y: -50, ease:'none',
-});
-// Step cards — 3 depths so they feel staggered in 3D space
-gsap.to('.step-card:nth-child(1)', {
-  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1 },
-  y: -50, ease:'none',
-});
-gsap.to('.step-card:nth-child(2)', {
-  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1.8 },
-  y: -90, ease:'none',
-});
-gsap.to('.step-card:nth-child(3)', {
-  scrollTrigger: { trigger:'.steps-grid', start:'top bottom', end:'bottom top', scrub:1.3 },
-  y: -60, ease:'none',
-});
-// Product — visual rises faster than the text (parallax depth split)
-gsap.to('.product-visual', {
-  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:1.2 },
-  y: -90, ease:'none',
-});
-gsap.to('.product-info', {
-  scrollTrigger: { trigger:'#product', start:'top bottom', end:'bottom top', scrub:2 },
-  y: -30, ease:'none',
-});
-// Reviews — header drifts, cards at 3 depths
-gsap.to('#reviews .reviews-header', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'center center', scrub:1 },
-  y: -50, ease:'none',
-});
-gsap.to('.review-card:nth-child(1)', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1 },
-  y: -20, ease:'none',
-});
-gsap.to('.review-card:nth-child(2)', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:1.7 },
-  y: -55, ease:'none',
-});
-gsap.to('.review-card:nth-child(3)', {
-  scrollTrigger: { trigger:'#reviews', start:'top bottom', end:'bottom top', scrub:2.3 },
-  y: -35, ease:'none',
-});
-// Community bg — deeper scale + drift
-gsap.to('.community-bg', {
-  scrollTrigger: { trigger:'#community', start:'top bottom', end:'bottom top', scrub:1 },
-  y: -90, scale: 1.2, ease:'none',
-});
-// CTA pricing cards — staggered depths
-gsap.to('.cta-card:nth-child(1)', {
-  scrollTrigger: { trigger:'#cta', start:'top bottom', end:'bottom top', scrub:1 },
-  y: -30, ease:'none',
-});
-gsap.to('.cta-card:nth-child(2)', {
-  scrollTrigger: { trigger:'#cta', start:'top bottom', end:'bottom top', scrub:1.6 },
-  y: -55, ease:'none',
+// Nav scroll class
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// Pricing
-gsap.to('.cta-card', {
-  scrollTrigger: { trigger:'#cta', start:'top 80%' },
-  opacity:1, y:0, duration:0.8, stagger:0.14, ease:'power3.out',
+// Marquee
+const mItems = [
+  '179g Fresh Fruit Per Sachet','Zero Added Sugar','Freeze Dried',
+  'Born in London 🇬🇧','10 Seconds to Ready','Letterbox Delivery',
+  '100% Natural','30-Day Guarantee','No Blender Needed',
+  '179g Fresh Fruit Per Sachet','Zero Added Sugar','Freeze Dried',
+  'Born in London 🇬🇧','10 Seconds to Ready','Letterbox Delivery',
+  '100% Natural','30-Day Guarantee','No Blender Needed',
+];
+const track = document.getElementById('marquee-track');
+mItems.forEach(t => {
+  const el = document.createElement('div');
+  el.className = 'marquee-item';
+  el.innerHTML = `${t}<span class="marquee-dot">●</span>`;
+  track.appendChild(el);
 });
 
+const isMobile = window.innerWidth < 768;
+
+// setScenePanel stub (module script may not have run yet on first paint)
+window.setScenePanel = window.setScenePanel || function(){};
+
+// ── PANEL 1: HERO ──
+const heroTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#panel-hero', start:'top top',
+    end: '+=90%', scrub:1,
+    pin: !isMobile, anticipatePin:1,
+    onEnter:      () => window.setScenePanel('hero'),
+    onEnterBack:  () => window.setScenePanel('hero'),
+  }
+});
+heroTl
+  .from('#hero-text .hero-badge',   { opacity:0, y:20,  duration:0.2 })
+  .from('#hero-text .hero-title',   { opacity:0, y:50,  duration:0.3 }, '-=0.1')
+  .from('#hero-text .s-sub',        { opacity:0, y:20,  duration:0.2 }, '-=0.15')
+  .from('#hero-text .hero-perks',   { opacity:0, y:20,  duration:0.2 }, '-=0.1')
+  .from('#hero-text .hero-actions', { opacity:0, y:20,  duration:0.2 }, '-=0.1')
+  .from('#hero-text .hero-stats',   { opacity:0, y:20,  duration:0.2 }, '-=0.1')
+  .from('.scroll-hint',             { opacity:0,        duration:0.15 }, '-=0.05')
+  .to('#hero-text',                 { opacity:0, y:-80, duration:0.3  }, '+=0.25');
+
+// ── PANEL 2: HOW IT WORKS ──
+const howTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#panel-how', start:'top top',
+    end: '+=120%', scrub:1,
+    pin: !isMobile, anticipatePin:1,
+    onEnter:      () => window.setScenePanel('how'),
+    onEnterBack:  () => window.setScenePanel('how'),
+  }
+});
+howTl
+  .from('#how-header .s-label', { opacity:0, y:30, duration:0.25 })
+  .from('#how-header .s-title', { opacity:0, y:40, duration:0.3  }, '-=0.1')
+  .from('#step-1', { opacity:0, y:60, duration:0.3 }, '-=0.1')
+  .from('#step-2', { opacity:0, y:60, duration:0.3 })
+  .from('#step-3', { opacity:0, y:60, duration:0.3 })
+  .to('#panel-how .panel-inner', { opacity:0, y:-60, duration:0.3 }, '+=0.3');
+
+// ── PANEL 3: PRODUCT ──
+const productTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#panel-product', start:'top top',
+    end: '+=110%', scrub:1,
+    pin: !isMobile, anticipatePin:1,
+    onEnter:      () => window.setScenePanel('product'),
+    onEnterBack:  () => window.setScenePanel('product'),
+  }
+});
+productTl
+  .from('#product-text .s-label',       { opacity:0, x:30,  duration:0.25 })
+  .from('#product-text .product-title', { opacity:0, x:40,  duration:0.3  }, '-=0.1')
+  .from('#product-text .product-desc',  { opacity:0, y:20,  duration:0.2  }, '-=0.1')
+  .from('.ing-row',                     { opacity:0, x:30,  duration:0.2, stagger:0.06 }, '-=0.1')
+  .from('.nutrition-row',               { opacity:0, y:20,  duration:0.2  })
+  .from('.price-block',                 { opacity:0, y:20,  duration:0.2  }, '-=0.1')
+  .from('#product-text .hero-actions',  { opacity:0, y:20,  duration:0.2  }, '-=0.1')
+  .to('#product-text',                  { opacity:0, x:60,  duration:0.3  }, '+=0.3');
+
+// Ingredient bar animation when product panel enters
+ScrollTrigger.create({
+  trigger: '#panel-product', start:'top 60%',
+  onEnter: () => document.querySelectorAll('.ing-bar').forEach(b => b.classList.add('animated')),
+});
+
+// ── PANEL 4: REVIEWS ──
+const reviewsTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#panel-reviews', start:'top top',
+    end: '+=110%', scrub:1,
+    pin: !isMobile, anticipatePin:1,
+    onEnter:      () => window.setScenePanel('reviews'),
+    onEnterBack:  () => window.setScenePanel('reviews'),
+  }
+});
+reviewsTl
+  .from('#reviews-content .s-label',      { opacity:0, y:30, duration:0.25 })
+  .from('#reviews-content .s-title',      { opacity:0, y:40, duration:0.3  }, '-=0.1')
+  .from('#reviews-content .reviews-agg',  { opacity:0, x:20, duration:0.2  }, '-=0.1')
+  .from('.review-card',                   { opacity:0, y:50, duration:0.25, stagger:0.07 }, '-=0.1')
+  .to('#reviews-content',                 { opacity:0, y:-50, duration:0.3 }, '+=0.3');
+
+// ── PANEL 5: CTA ──
+ScrollTrigger.create({
+  trigger: '#panel-cta', start:'top bottom',
+  onEnter:     () => window.setScenePanel('cta'),
+  onEnterBack: () => window.setScenePanel('cta'),
+});
+gsap.from('#cta-content > div:first-child > *', {
+  scrollTrigger: { trigger:'#panel-cta', start:'top 80%' },
+  opacity:0, y:30, duration:0.7, stagger:0.1, ease:'power3.out',
+});
+gsap.from('.cta-card', {
+  scrollTrigger: { trigger:'#panel-cta', start:'top 75%' },
+  opacity:0, y:40, duration:0.8, stagger:0.15, ease:'power3.out',
+});
 </script>
 </body>
 </html>
